@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Árbol Genealógico Rakowszczyk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F3EEE3; --bg-alt:#EAE3D2; --card:#FFFDF9; --ink:#2A2118; --ink-soft:#5C5445;
+    --accent:#4F5F45; --accent-dark:#3A4834; --accent-soft:#DDE3D3;
+    --gold:#8C6B3F; --pending:#C4732A; --pending-bg:#FBEADA; --pending-border:#E0A25C;
+    --border:#DBD2BC; --danger:#A6432E; --shadow: 0 2px 10px rgba(42,33,24,0.08);
+    --radius: 10px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1E2621; --bg-alt:#232C26; --card:#26302A; --ink:#EDE7D9; --ink-soft:#B9B2A0;
+      --accent:#9BB98A; --accent-dark:#7FA06D; --accent-soft:#33402F;
+      --gold:#CBA96A; --pending:#E0A25C; --pending-bg:#3A2E1E; --pending-border:#8C6231;
+      --border:#3A4339; --danger:#D97A65; --shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1E2621; --bg-alt:#232C26; --card:#26302A; --ink:#EDE7D9; --ink-soft:#B9B2A0;
+    --accent:#9BB98A; --accent-dark:#7FA06D; --accent-soft:#33402F;
+    --gold:#CBA96A; --pending:#E0A25C; --pending-bg:#3A2E1E; --pending-border:#8C6231;
+    --border:#3A4339; --danger:#D97A65; --shadow: 0 2px 10px rgba(0,0,0,0.3);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:'Inter',system-ui,-apple-system,sans-serif;
+    font-size:16px; line-height:1.5;
+  }
+  h1,h2,h3,.serif{font-family:'Lora',Georgia,serif;}
+  h1{font-size:1.7rem; margin:0; font-weight:600;}
+  h2{font-size:1.3rem; margin:0 0 .8rem; font-weight:600; color:var(--accent-dark);}
+  h3{font-size:1.05rem; margin:0 0 .4rem; font-weight:600;}
+  a{color:var(--accent-dark);}
+  button{font-family:inherit; cursor:pointer;}
+  #topbar{
+    position:sticky; top:0; z-index:20; background:var(--bg); border-bottom:1px solid var(--border);
+    display:flex; align-items:center; gap:.7rem; padding:.7rem 1rem; flex-wrap:wrap;
+  }
+  #topbar .title{flex:1; min-width:180px;}
+  #topbar .title h1{font-size:1.15rem;}
+  #topbar .title span{font-size:.75rem; color:var(--ink-soft);}
+  .btn{
+    background:var(--accent); color:#fff; border:none; border-radius:8px;
+    padding:.5rem .9rem; font-size:.88rem; font-weight:600;
+  }
+  .btn:hover{background:var(--accent-dark);}
+  .btn.secondary{background:transparent; color:var(--accent-dark); border:1px solid var(--border);}
+  .btn.secondary:hover{background:var(--accent-soft);}
+  .btn.danger{background:var(--danger);}
+  .btn.small{padding:.32rem .6rem; font-size:.78rem;}
+  .btn:disabled{opacity:.5; cursor:not-allowed;}
+  main{max-width:1000px; margin:0 auto; padding:1.2rem 1rem 3rem;}
+  .card{
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    padding:1.1rem; box-shadow:var(--shadow);
+  }
+  .pending{
+    border:1.5px dashed var(--pending-border) !important; background:var(--pending-bg) !important;
+  }
+  .badge{
+    display:inline-block; font-size:.68rem; font-weight:700; padding:.15rem .5rem; border-radius:20px;
+    background:var(--pending); color:#fff; letter-spacing:.02em; vertical-align:middle;
+  }
+  .badge.count{background:var(--danger);}
+  input[type=text],input[type=date],input[type=password],select,textarea{
+    width:100%; padding:.55rem .7rem; border:1px solid var(--border); border-radius:7px;
+    background:var(--card); color:var(--ink); font-family:inherit; font-size:.92rem;
+  }
+  label{font-size:.82rem; font-weight:600; color:var(--ink-soft); display:block; margin:.6rem 0 .25rem;}
+  .field{margin-bottom:.4rem;}
+  .row{display:flex; gap:.6rem; flex-wrap:wrap;}
+  .row > *{flex:1; min-width:140px;}
+  .autocomplete-wrap{position:relative;}
+  .suggestions{
+    position:absolute; top:100%; left:0; right:0; background:var(--card); border:1px solid var(--border);
+    border-top:none; border-radius:0 0 8px 8px; max-height:220px; overflow-y:auto; z-index:30;
+    box-shadow:var(--shadow);
+  }
+  .suggestions div{padding:.5rem .7rem; cursor:pointer; font-size:.9rem;}
+  .suggestions div:hover{background:var(--accent-soft);}
+  .center-screen{
+    min-height:80vh; display:flex; align-items:center; justify-content:center; padding:1.2rem;
+  }
+  .login-box{max-width:420px; width:100%;}
+  .login-box .brand{text-align:center; margin-bottom:1.4rem;}
+  .login-box .brand h1{font-size:1.7rem;}
+  .login-box .brand p{color:var(--ink-soft); font-size:.9rem; margin:.3rem 0 0;}
+  .menu-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:.8rem; margin-top:1rem;}
+  .menu-item{
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    padding:1rem .8rem; text-align:center; box-shadow:var(--shadow); position:relative;
+  }
+  .menu-item .icon{font-size:1.6rem; display:block; margin-bottom:.4rem;}
+  .menu-item span.label{font-weight:600; font-size:.88rem;}
+  .section{margin-bottom:1.6rem;}
+  .gen-row{margin-bottom:1.4rem;}
+  .gen-label{font-size:.78rem; text-transform:none; color:var(--ink-soft); font-weight:700; margin-bottom:.5rem; letter-spacing:.02em;}
+  .cards-scroll{display:flex; gap:.7rem; overflow-x:auto; padding-bottom:.3rem;}
+  .person-card{
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+    padding:.7rem; min-width:132px; max-width:132px; text-align:center; cursor:pointer;
+    box-shadow:var(--shadow); flex-shrink:0; transition:transform .1s;
+  }
+  .person-card:hover{transform:translateY(-2px);}
+  .person-card.center{border:2px solid var(--accent);}
+  .avatar{
+    width:64px; height:64px; border-radius:50%; background:var(--accent-soft); margin:0 auto .5rem;
+    display:flex; align-items:center; justify-content:center; font-size:1.5rem; overflow:hidden;
+    color:var(--accent-dark); font-family:'Lora',serif; font-weight:600;
+  }
+  .avatar img{width:100%; height:100%; object-fit:cover;}
+  .person-card .pname{font-size:.82rem; font-weight:600; line-height:1.2;}
+  .person-card .pdates{font-size:.72rem; color:var(--ink-soft); margin-top:.2rem;}
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(0,0,0,.45); display:flex; align-items:flex-start;
+    justify-content:center; padding:2rem 1rem; z-index:50; overflow-y:auto;
+  }
+  .modal{
+    background:var(--card); border-radius:var(--radius); max-width:560px; width:100%;
+    padding:1.3rem; box-shadow:0 10px 40px rgba(0,0,0,.25);
+  }
+  .modal-close{float:right; background:none; border:none; font-size:1.3rem; color:var(--ink-soft); line-height:1;}
+  .kv{display:flex; justify-content:space-between; padding:.35rem 0; border-bottom:1px solid var(--border); font-size:.88rem;}
+  .kv:last-child{border-bottom:none;}
+  .kv .k{color:var(--ink-soft);}
+  .note-item{padding:.5rem .6rem; border-radius:7px; background:var(--bg-alt); margin-bottom:.4rem; font-size:.85rem;}
+  .empty{color:var(--ink-soft); font-style:italic; font-size:.9rem; padding:.8rem 0;}
+  details.timeline summary{cursor:pointer; font-weight:600; padding:.6rem 0;}
+  .tl-item{display:flex; gap:.7rem; padding:.5rem 0; border-bottom:1px solid var(--border); font-size:.88rem;}
+  .tl-year{font-family:'Lora',serif; font-weight:700; color:var(--gold); min-width:52px;}
+  .search-results{margin-top:.6rem;}
+  .search-result-item{
+    display:flex; align-items:center; gap:.6rem; padding:.55rem .3rem; border-bottom:1px solid var(--border);
+    cursor:pointer;
+  }
+  .search-result-item:hover{background:var(--accent-soft);}
+  .mini-avatar{width:34px;height:34px;border-radius:50%;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:.8rem;color:var(--accent-dark);font-weight:600;flex-shrink:0;overflow:hidden;}
+  .mini-avatar img{width:100%;height:100%;object-fit:cover;}
+  .tabs{display:flex; gap:.4rem; margin-bottom:1rem; flex-wrap:wrap;}
+  .tab-btn{background:var(--bg-alt); border:1px solid var(--border); border-radius:8px; padding:.4rem .8rem; font-size:.85rem; font-weight:600; color:var(--ink-soft);}
+  .tab-btn.active{background:var(--accent); color:#fff; border-color:var(--accent);}
+  .pending-list-item{border:1.5px dashed var(--pending-border); background:var(--pending-bg); border-radius:8px; padding:.7rem; margin-bottom:.6rem; font-size:.87rem;}
+  .hist-item{padding:.5rem 0; border-bottom:1px solid var(--border); font-size:.83rem;}
+  .place-group{margin-bottom:1rem;}
+  .place-group h3{font-size:.95rem; color:var(--gold);}
+  .toast{
+    position:fixed; bottom:1.2rem; left:50%; transform:translateX(-50%); background:var(--accent-dark);
+    color:#fff; padding:.6rem 1.1rem; border-radius:8px; font-size:.87rem; z-index:100; box-shadow:var(--shadow);
+  }
+  .footer-note{text-align:center; color:var(--ink-soft); font-size:.75rem; margin-top:2rem;}
+  @media (max-width:520px){
+    .login-box{max-width:100%;}
+  }
+</style>
+</head>
+<body>
+<div id="topbar" style="display:none;">
+  <button class="btn secondary small" onclick="goHome()">🏠 Menú</button>
+  <div class="title">
+    <h1>Árbol Rakowszczyk</h1>
+    <span id="whoami"></span>
+  </div>
+  <button class="btn secondary small" onclick="logout()">Cambiar usuario</button>
+</div>
+<div id="app"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+import {
+  getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc,
+  onSnapshot, query, where, writeBatch, arrayUnion
+} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+const SEED = [{"id": "I500001", "name": "Hugo Rakowszczyk", "given": "Hugo", "surname": "Rakowszczyk", "sex": "M", "birthDate": "21 NOV 1975", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500003", "I500002"], "unions": [{"spouseId": "I500009", "marrDate": "15 NOV 2003", "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500002", "name": "Dora Komar", "given": "Dora", "surname": "Komar", "sex": "F", "birthDate": "12 JAN 1949", "birthPlace": "Argentina", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500005", "I500004"], "unions": [{"spouseId": "I500003", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500003", "name": "Natalio Rakowszczyk", "given": "Natalio", "surname": "Rakowszczyk", "sex": "M", "birthDate": "3 JAN 1941", "birthPlace": "Argentina", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500007", "I500006"], "unions": [{"spouseId": "I500002", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500004", "name": "Sara Wlos", "given": "Sara", "surname": "Wlos", "sex": "F", "birthDate": "1909", "birthPlace": "Polonia", "deathDate": null, "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500005", "marrDate": null, "marrPlace": null}, {"spouseId": "I500101", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500005", "name": "Arje León Komar", "given": "Arje León", "surname": "Komar", "sex": "M", "birthDate": null, "birthPlace": "Polonia", "deathDate": null, "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500004", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500006", "name": "Rosa Piura", "given": "Rosa", "surname": "Piura", "sex": "F", "birthDate": "28 AUG 1911", "birthPlace": "Argentina", "deathDate": "6 JUN 2000", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500007", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500007", "name": "Aarón Rakowszczyk", "given": "Aarón", "surname": "Rakowszczyk", "sex": "M", "birthDate": "28 FEB 1907", "birthPlace": "Polonia", "deathDate": "3 AUG 1974", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500018", "I500019"], "unions": [{"spouseId": "I500006", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500008", "name": "Ariel Rakowszczyk", "given": "Ariel", "surname": "Rakowszczyk", "sex": "M", "birthDate": "12 OCT 2005", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500001", "I500009"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500009", "name": "Vanina Rubinstein", "given": "Vanina", "surname": "Rubinstein", "sex": "F", "birthDate": "23 OCT 1972", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500048", "I500049"], "unions": [{"spouseId": "I500001", "marrDate": "15 NOV 2003", "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500013", "name": "Manuel Rakowszczyk", "given": "Manuel", "surname": "Rakowszczyk", "sex": "M", "birthDate": "21 MAY 2010", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500001", "I500009"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500014", "name": "Carlos Ruben Rakowszczyk", "given": "Carlos Ruben", "surname": "Rakowszczyk", "sex": "M", "birthDate": "29 MAY 1970", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500003", "I500002"], "unions": [{"spouseId": "I500015", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500015", "name": "Sandra Casak", "given": "Sandra", "surname": "Casak", "sex": "F", "birthDate": "16 MAR 1966", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500230"], "unions": [{"spouseId": "I500014", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500016", "name": "Martin Rakowszczyk", "given": "Martin", "surname": "Rakowszczyk", "sex": "M", "birthDate": "11 DEC 1999", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500014", "I500015"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500017", "name": "Libe Rakowszczyk", "given": "Libe", "surname": "Rakowszczyk", "sex": "F", "birthDate": "MAR 1907", "birthPlace": "Polonia", "deathDate": "APR 1957", "deathPlace": "Argentina", "deceased": true, "residence": null, "photo": null, "parentIds": ["I500018", "I500019"], "unions": [{"spouseId": "I500020", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500018", "name": "Abraham Rakowszczyk", "given": "Abraham", "surname": "Rakowszczyk", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500024"], "unions": [{"spouseId": "I500019", "marrDate": null, "marrPlace": null}, {"spouseId": "I500039", "marrDate": null, "marrPlace": null}, {"spouseId": "I500155", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500019", "name": "Szeina Rubin", "given": "Szeina", "surname": "Rubin", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500018", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500020", "name": "Israel Gordin", "given": "Israel", "surname": "Gordin", "sex": "M", "birthDate": "1907", "birthPlace": null, "deathDate": "1971", "deathPlace": "Argentina", "deceased": true, "residence": null, "photo": null, "parentIds": ["I500123", "I500124"], "unions": [{"spouseId": "I500017", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500021", "name": "Jaia Blume Rakowszczyk", "given": "Jaia Blume", "surname": "Rakowszczyk", "sex": "F", "birthDate": "14 APR 1902", "birthPlace": "Polonia", "deathDate": "15 NOV 1941", "deathPlace": "Argentina", "deceased": true, "residence": null, "photo": null, "parentIds": ["I500018", "I500019"], "unions": [{"spouseId": "I500025", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500022", "name": "Moses Rakowszczyk", "given": "Moses", "surname": "Rakowszczyk", "sex": "M", "birthDate": "9 APR 1898", "birthPlace": "Polonia", "deathDate": "1944", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500018", "I500019"], "unions": [{"spouseId": "I500186", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500023", "name": "Haim Rakowszczyk", "given": "Haim", "surname": "Rakowszczyk", "sex": "M", "birthDate": "19 APR 1896", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500018", "I500019"], "unions": [{"spouseId": "I500073", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500024", "name": "Noah Rakowszczyk", "given": "Noah", "surname": "Rakowszczyk", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500025", "name": "Noe Brudner", "given": "Noe", "surname": "Brudner", "sex": "M", "birthDate": "16 JUN 1898", "birthPlace": "Polonia", "deathDate": "23 AUG 1975", "deathPlace": "Argentina", "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500021", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500026", "name": "Raul Brudner", "given": "Raul", "surname": "Brudner", "sex": "M", "birthDate": "29 OCT 1938", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500025", "I500021"], "unions": [{"spouseId": "I500029", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500027", "name": "Szeina Brudner", "given": "Szeina", "surname": "Brudner", "sex": "F", "birthDate": "9 FEB 1929", "birthPlace": null, "deathDate": "30 MAR 2019", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500025", "I500021"], "unions": [{"spouseId": "I500028", "marrDate": "6 MAR 1948", "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500028", "name": "Motel Geiler", "given": "Motel", "surname": "Geiler", "sex": "M", "birthDate": "7 FEB 1926", "birthPlace": null, "deathDate": "3 JAN 2001", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500027", "marrDate": "6 MAR 1948", "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500029", "name": "Marta Gotlieb", "given": "Marta", "surname": "Gotlieb", "sex": "F", "birthDate": "25 APR 1943", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500026", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500030", "name": "Alejandro Brudner", "given": "Alejandro", "surname": "Brudner", "sex": "M", "birthDate": "4 MAR 1978", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500026", "I500029"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500031", "name": "Adrian Brudner", "given": "Adrian", "surname": "Brudner", "sex": "M", "birthDate": "22 MAY 1980", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500026", "I500029"], "unions": [{"spouseId": "I500032", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500032", "name": "Carina Hercolini", "given": "Carina", "surname": "Hercolini", "sex": "F", "birthDate": "15 MAR 1980", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500031", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500033", "name": "Clara Brudner", "given": "Clara", "surname": "Brudner", "sex": "F", "birthDate": "25 DEC 2011", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500031", "I500032"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500034", "name": "Matias Brudner", "given": "Matias", "surname": "Brudner", "sex": "M", "birthDate": "16 APR 2015", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500031", "I500032"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500036", "name": "Borach Rakowszczyk", "given": "Borach", "surname": "Rakowszczyk", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500024"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500037", "name": "Faifa Rakowszczyk", "given": "Faifa", "surname": "Rakowszczyk", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500024"], "unions": [{"spouseId": "I500044", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500038", "name": "Jaima Shia Rakowszczyk", "given": "Jaima Shia", "surname": "Rakowszczyk", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500024"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500039", "name": "Sore Rashe", "given": "Sore", "surname": "Rashe", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500018", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500040", "name": "Frida Rakowszczyk", "given": "Frida", "surname": "Rakowszczyk", "sex": "F", "birthDate": "12 AUG 1911", "birthPlace": "Polonia", "deathDate": "23 NOV 2000", "deathPlace": "Israel", "deceased": true, "residence": null, "photo": null, "parentIds": ["I500018", "I500039"], "unions": [{"spouseId": "I500156", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500041", "name": "Rochel (Rose) Rakowszczyk", "given": "Rochel (Rose)", "surname": "Rakowszczyk", "sex": "F", "birthDate": "12 OCT 1914", "birthPlace": null, "deathDate": "1944", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500018", "I500039"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500042", "name": "Mushe Rakowszczyk", "given": "Mushe", "surname": "Rakowszczyk", "sex": "F", "birthDate": "17 AUG 1913", "birthPlace": null, "deathDate": "1944", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500018", "I500039"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500043", "name": "Esther", "given": "Esther", "surname": "", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500044", "I500037"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500044", "name": "", "given": "", "surname": "", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500037", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500045", "name": "Luis", "given": "Luis", "surname": "", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500044", "I500037"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500046", "name": "Anita", "given": "Anita", "surname": "", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500044", "I500037"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500047", "name": "Mariela Rubinstein", "given": "Mariela", "surname": "Rubinstein", "sex": "F", "birthDate": "17 NOV 1970", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500048", "I500049"], "unions": [{"spouseId": "I500052", "marrDate": "3 FEB 1995", "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500048", "name": "Claudio Rubinstein", "given": "Claudio", "surname": "Rubinstein", "sex": "M", "birthDate": "11 APR 1947", "birthPlace": null, "deathDate": "5 DEC 2023", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500115", "I500116"], "unions": [{"spouseId": "I500049", "marrDate": "24 MAY 1969", "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500049", "name": "Mirta Upstein", "given": "Mirta", "surname": "Upstein", "sex": "F", "birthDate": "12 JUL 1949", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500105", "I500106"], "unions": [{"spouseId": "I500048", "marrDate": "24 MAY 1969", "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500050", "name": "Emiliano Rubinstein", "given": "Emiliano", "surname": "Rubinstein", "sex": "M", "birthDate": "2 OCT 1982", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500048", "I500049"], "unions": [{"spouseId": "I500051", "marrDate": "3 DEC 2011", "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500051", "name": "Alejandra Arce", "given": "Alejandra", "surname": "Arce", "sex": "F", "birthDate": "16 AUG 1981", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500050", "marrDate": "3 DEC 2011", "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500052", "name": "Gabi Espinosa", "given": "Gabi", "surname": "Espinosa", "sex": "M", "birthDate": "18 OCT 1967", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500047", "marrDate": "3 FEB 1995", "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500053", "name": "Magali", "given": "Magali", "surname": "", "sex": "F", "birthDate": "20 MAR 1998", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500052", "I500047"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500054", "name": "Jorge Geiler", "given": "Jorge", "surname": "Geiler", "sex": "M", "birthDate": "26 DEC 1948", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500028", "I500027"], "unions": [{"spouseId": "I500055", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500055", "name": "Beatriz Schudrich", "given": "Beatriz", "surname": "Schudrich", "sex": "F", "birthDate": "12 NOV 1949", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500054", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500056", "name": "Ezequiel Geiler", "given": "Ezequiel", "surname": "Geiler", "sex": "M", "birthDate": "24 FEB 1978", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500054", "I500055"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500057", "name": "Clara Geiler", "given": "Clara", "surname": "Geiler", "sex": "F", "birthDate": "20 NOV 1951", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500028", "I500027"], "unions": [{"spouseId": "I500058", "marrDate": "1984", "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500058", "name": "Meir Arditti", "given": "Meir", "surname": "Arditti", "sex": "M", "birthDate": "20 JUN 1951", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500057", "marrDate": "1984", "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500059", "name": "Uzi Arditti", "given": "Uzi", "surname": "Arditti", "sex": "M", "birthDate": "24 JUL 1974", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500058", "I500057"], "unions": [{"spouseId": "I500087", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500060", "name": "Mijal Arditti", "given": "Mijal", "surname": "Arditti", "sex": "F", "birthDate": "18 MAY 1977", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500058", "I500057"], "unions": [{"spouseId": "I500096", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500061", "name": "Liliana Geiler", "given": "Liliana", "surname": "Geiler", "sex": "F", "birthDate": "8 DEC 1954", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500028", "I500027"], "unions": [{"spouseId": "I500062", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500062", "name": "Miguel Spiner", "given": "Miguel", "surname": "Spiner", "sex": "M", "birthDate": "27 MAY 1950", "birthPlace": null, "deathDate": "2017", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500061", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500063", "name": "Ilan Spiner", "given": "Ilan", "surname": "Spiner", "sex": "M", "birthDate": "3 MAR 1996", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500062", "I500061"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500064", "name": "Iair Spiner", "given": "Iair", "surname": "Spiner", "sex": "M", "birthDate": "24 JAN 2000", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500062", "I500061"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500065", "name": "Flora Gordin", "given": "Flora", "surname": "Gordin", "sex": "F", "birthDate": "MAR 1936", "birthPlace": null, "deathDate": "15 FEB 1979", "deathPlace": "Argentina", "deceased": true, "residence": null, "photo": null, "parentIds": ["I500020", "I500017"], "unions": [{"spouseId": "I500188", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500066", "name": "Susana Gordin", "given": "Susana", "surname": "Gordin", "sex": "F", "birthDate": "26 JUL 1947", "birthPlace": "Argentina", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500020", "I500017"], "unions": [{"spouseId": "I500088", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500067", "name": "Sonia Rakowszczyk", "given": "Sonia", "surname": "Rakowszczyk", "sex": "F", "birthDate": "8 OCT 1935", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500007", "I500006"], "unions": [{"spouseId": "I500068", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500068", "name": "Simon Rajman", "given": "Simon", "surname": "Rajman", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500067", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500069", "name": "Luis Rajman", "given": "Luis", "surname": "Rajman", "sex": "M", "birthDate": "16 MAY 1962", "birthPlace": "Argentina", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500068", "I500067"], "unions": [{"spouseId": "I500071", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500070", "name": "Sara Rajman", "given": "Sara", "surname": "Rajman", "sex": "F", "birthDate": "18 OCT 1971", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500068", "I500067"], "unions": [{"spouseId": "I500196", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500071", "name": "Adriana Adar", "given": "Adriana", "surname": "Adar", "sex": "F", "birthDate": "30 NOV 1962", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500069", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500072", "name": "Josha Rajman", "given": "Josha", "surname": "Rajman", "sex": "M", "birthDate": "15 AUG 1985", "birthPlace": "U.S.A", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500069", "I500071"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500073", "name": "Szeine Melachnik", "given": "Szeine", "surname": "Melachnik", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500023", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500074", "name": "Manny Rockoff", "given": "Manny", "surname": "Rockoff", "sex": "M", "birthDate": "1918", "birthPlace": "Polonia", "deathDate": null, "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500023", "I500073"], "unions": [{"spouseId": "I500078", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500075", "name": "Aaron Rakoff", "given": "Aaron", "surname": "Rakoff", "sex": "M", "birthDate": "7 JUN 1921", "birthPlace": null, "deathDate": "5 MAR 2018", "deathPlace": "U.S.A", "deceased": true, "residence": null, "photo": null, "parentIds": ["I500023", "I500073"], "unions": [{"spouseId": "I500079", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500076", "name": "Norman Rockoff", "given": "Norman", "surname": "Rockoff", "sex": "M", "birthDate": "22 OCT 1931", "birthPlace": "U.S.A", "deathDate": "29 SEP 2003", "deathPlace": "U.S.A", "deceased": true, "residence": null, "photo": null, "parentIds": ["I500023", "I500073"], "unions": [{"spouseId": "I500226", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500077", "name": "Ana Rakoff", "given": "Ana", "surname": "Rakoff", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": "DEC 2012", "deathPlace": "U.S.A", "deceased": true, "residence": null, "photo": null, "parentIds": ["I500023", "I500073"], "unions": [{"spouseId": "I500203", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500078", "name": "Tillie", "given": "Tillie", "surname": "", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500074", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500079", "name": "Rose", "given": "Rose", "surname": "", "sex": "F", "birthDate": "15 NOV 1924", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500075", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500080", "name": "Mark Rakoff", "given": "Mark", "surname": "Rakoff", "sex": "M", "birthDate": "13 APR 1948", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500075", "I500079"], "unions": [{"spouseId": "I500083", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500081", "name": "Steven Rakoff", "given": "Steven", "surname": "Rakoff", "sex": "M", "birthDate": "2 MAY 1951", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500075", "I500079"], "unions": [{"spouseId": "I500220", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500082", "name": "Debbie Rakoff", "given": "Debbie", "surname": "Rakoff", "sex": "F", "birthDate": "8 APR 1957", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500075", "I500079"], "unions": [{"spouseId": "I500198", "marrDate": "4 AUG 1985", "marrPlace": "U.S.A"}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500083", "name": "Beth", "given": "Beth", "surname": "", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500080", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500084", "name": "Benjamin Rakoff", "given": "Benjamin", "surname": "Rakoff", "sex": "M", "birthDate": "12 JUN 1979", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500080", "I500083"], "unions": [{"spouseId": "I500217", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500085", "name": "Jillian Rakoff", "given": "Jillian", "surname": "Rakoff", "sex": "F", "birthDate": "17 JUN 1981", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500080", "I500083"], "unions": [{"spouseId": "I500214", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500086", "name": "Michael Rakoff", "given": "Michael", "surname": "Rakoff", "sex": "M", "birthDate": "21 JAN 1985", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500080", "I500083"], "unions": [{"spouseId": "I500218", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500087", "name": "Inbal Greenstein", "given": "Inbal", "surname": "Greenstein", "sex": "F", "birthDate": "5 SEP 1975", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500231", "I500232"], "unions": [{"spouseId": "I500059", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500088", "name": "Saul Krimer", "given": "Saul", "surname": "Krimer", "sex": "M", "birthDate": "23 DEC 1942", "birthPlace": null, "deathDate": "18 JUN 2019", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500121", "I500122"], "unions": [{"spouseId": "I500066", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500089", "name": "Andrea Krimer", "given": "Andrea", "surname": "Krimer", "sex": "F", "birthDate": "28 NOV 1971", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500088", "I500066"], "unions": [{"spouseId": "I500090", "marrDate": "JUL 1994", "marrPlace": "Argentina"}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500090", "name": "Fernando Balbi", "given": "Fernando", "surname": "Balbi", "sex": "M", "birthDate": "6 JUL 1971", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500089", "marrDate": "JUL 1994", "marrPlace": "Argentina"}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500091", "name": "Ale Balbi", "given": "Ale", "surname": "Balbi", "sex": "M", "birthDate": "3 JUN 1998", "birthPlace": "Argentina", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500090", "I500089"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500092", "name": "Fanny Krimer", "given": "Fanny", "surname": "Krimer", "sex": "F", "birthDate": "4 FEB 1970", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500088", "I500066"], "unions": [{"spouseId": "I500094", "marrDate": "MAR 1994", "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500093", "name": "Gisela Balbi", "given": "Gisela", "surname": "Balbi", "sex": "F", "birthDate": "21 AUG 2003", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500090", "I500089"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500094", "name": "Fernando Kujawski", "given": "Fernando", "surname": "Kujawski", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500119", "I500120"], "unions": [{"spouseId": "I500092", "marrDate": "MAR 1994", "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500095", "name": "Ashley Kujawski", "given": "Ashley", "surname": "Kujawski", "sex": "F", "birthDate": "12 SEP 2000", "birthPlace": "Argentina", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500094", "I500092"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500096", "name": "Itay Fishbein", "given": "Itay", "surname": "Fishbein", "sex": "M", "birthDate": "5 SEP 1975", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500060", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500097", "name": "Lioni Fishbein", "given": "Lioni", "surname": "Fishbein", "sex": "F", "birthDate": "4 DEC 2006", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500096", "I500060"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500098", "name": "Alma Fishbein", "given": "Alma", "surname": "Fishbein", "sex": "F", "birthDate": "23 SEP 2009", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500096", "I500060"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500099", "name": "Ravid Arditti", "given": "Ravid", "surname": "Arditti", "sex": "M", "birthDate": "18 NOV 2008", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500059", "I500087"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500100", "name": "Naveh Arditti", "given": "Naveh", "surname": "Arditti", "sex": "M", "birthDate": "6 MAR 2011", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500059", "I500087"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500101", "name": "Grinber", "given": "", "surname": "Grinber", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500004", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500102", "name": "Isaac Grinber", "given": "Isaac", "surname": "Grinber", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500101", "I500004"], "unions": [{"spouseId": "I500103", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500103", "name": "Gloria Kantor", "given": "Gloria", "surname": "Kantor", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500102", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500104", "name": "Laura Upstein", "given": "Laura", "surname": "Upstein", "sex": "F", "birthDate": "9 JUN 1948", "birthPlace": null, "deathDate": "10 JUN 2022", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500105", "I500106"], "unions": [{"spouseId": "I500107", "marrDate": "18 JAN 1975", "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500105", "name": "Elias Upstein", "given": "Elias", "surname": "Upstein", "sex": "M", "birthDate": "13 JAN 1924", "birthPlace": null, "deathDate": "6 DEC 1989", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500106", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500106", "name": "Clara Furman", "given": "Clara", "surname": "Furman", "sex": "F", "birthDate": "12 FEB 1927", "birthPlace": null, "deathDate": "9 SEP 2013", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500150", "I500151"], "unions": [{"spouseId": "I500105", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500107", "name": "Miguel Vaingurt", "given": "Miguel", "surname": "Vaingurt", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500104", "marrDate": "18 JAN 1975", "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500108", "name": "Christian Vaingurt", "given": "Christian", "surname": "Vaingurt", "sex": "M", "birthDate": "17 OCT 1979", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500107", "I500104"], "unions": [{"spouseId": "I500110", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500109", "name": "Sergio Vaingurt", "given": "Sergio", "surname": "Vaingurt", "sex": "M", "birthDate": "21 FEB 1976", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500107", "I500104"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500110", "name": "Viviana Ojeda", "given": "Viviana", "surname": "Ojeda", "sex": "F", "birthDate": "2 DEC 1982", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500108", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500111", "name": "Tomas Vaingurt", "given": "Tomas", "surname": "Vaingurt", "sex": "M", "birthDate": "10 JUL 2015", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500108", "I500110"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500112", "name": "Patricia Upstein", "given": "Patricia", "surname": "Upstein", "sex": "F", "birthDate": "1 NOV 1962", "birthPlace": null, "deathDate": "16 MAR 2014", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500105", "I500106"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500113", "name": "Adrian Upstein", "given": "Adrian", "surname": "Upstein", "sex": "M", "birthDate": "26 DEC 1962", "birthPlace": null, "deathDate": "12 FEB 2024", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500105", "I500106"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500114", "name": "Mario Rubinstein", "given": "Mario", "surname": "Rubinstein", "sex": "M", "birthDate": "18 MAY 1951", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500115", "I500116"], "unions": [{"spouseId": "I500251", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500115", "name": "Rubinstein", "given": "", "surname": "Rubinstein", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500116", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500116", "name": "Rubinstein", "given": "", "surname": "Rubinstein", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500115", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500119", "name": "Kujawski", "given": "", "surname": "Kujawski", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500125", "I500126"], "unions": [{"spouseId": "I500120", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500120", "name": "Galer", "given": "", "surname": "Galer", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500127", "I500128"], "unions": [{"spouseId": "I500119", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500121", "name": "Levi Krimer", "given": "Levi", "surname": "Krimer", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": "Z\"L", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500129", "I500130"], "unions": [{"spouseId": "I500122", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500122", "name": "Fanny Graci", "given": "Fanny", "surname": "Graci", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": "Z\"L", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500131", "I500132"], "unions": [{"spouseId": "I500121", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500123", "name": "Moishe Gordon", "given": "Moishe", "surname": "Gordon", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": "Z\"L", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500133"], "unions": [{"spouseId": "I500124", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500124", "name": "Freide Edin", "given": "Freide", "surname": "Edin", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": "Z\"L", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500123", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500125", "name": "Enrique Kujawski", "given": "Enrique", "surname": "Kujawski", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": "Z\"L", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500126", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500126", "name": "Agustina Sigal", "given": "Agustina", "surname": "Sigal", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": "Z\"L", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500125", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500127", "name": "Benjamin Galer", "given": "Benjamin", "surname": "Galer", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": "Z\"L", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500141", "I500142"], "unions": [{"spouseId": "I500128", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500128", "name": "Ester Procupet", "given": "Ester", "surname": "Procupet", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": "Z\"L", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500127", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500129", "name": "Moises Cremer", "given": "Moises", "surname": "Cremer", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": "Z\"L", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500130", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500130", "name": "Beila Gusman", "given": "Beila", "surname": "Gusman", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": "Z\"L", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500129", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500131", "name": "¿?", "given": "¿?", "surname": "", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": "Z\"L", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500143"], "unions": [{"spouseId": "I500132", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500132", "name": "¿?", "given": "¿?", "surname": "", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": "Z\"L", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500131", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500133", "name": "Efraim Gordon", "given": "Efraim", "surname": "Gordon", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": "Z\"L", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500134", "name": "Abram Gordin", "given": "Abram", "surname": "Gordin", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": "Z\"L", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500123", "I500124"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500135", "name": "zara Gordin", "given": "zara", "surname": "Gordin", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": "Z\"L", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500123", "I500124"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500136", "name": "Shoshke Gordin", "given": "Shoshke", "surname": "Gordin", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": "Z\"L", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500123", "I500124"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500137", "name": "Taiel Gordin", "given": "Taiel", "surname": "Gordin", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": "Z\"L", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500123", "I500124"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500138", "name": "Iajke Gordin", "given": "Iajke", "surname": "Gordin", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": "Z\"L", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500123", "I500124"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500139", "name": "Jaique Gordin", "given": "Jaique", "surname": "Gordin", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": "Z\"L", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500123", "I500124"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500140", "name": "Benny Gordin", "given": "Benny", "surname": "Gordin", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": "Z\"L", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500123", "I500124"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500141", "name": "Faivel Galer", "given": "Faivel", "surname": "Galer", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": "Z\"L", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500142", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500142", "name": "Szeine Zylberblat", "given": "Szeine", "surname": "Zylberblat", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": "Z\"L", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500141", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500143", "name": "", "given": "", "surname": "", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500144", "name": "Samuell Graci", "given": "Samuell", "surname": "Graci", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": "Z\"L", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500131", "I500132"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500149", "name": "Lidia Furman", "given": "Lidia", "surname": "Furman", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500150", "I500151"], "unions": [{"spouseId": "I500152", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500150", "name": "Furman", "given": "", "surname": "Furman", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500151", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500151", "name": "Furman", "given": "", "surname": "Furman", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500150", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500152", "name": "Bernardo Rubin", "given": "Bernardo", "surname": "Rubin", "sex": "M", "birthDate": "1 MAR 1930", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500149", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500153", "name": "Jorge Rubin", "given": "Jorge", "surname": "Rubin", "sex": "M", "birthDate": "21 SEP 1950", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500152", "I500149"], "unions": [{"spouseId": "I500154", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500154", "name": "Mazal Ellgherabli", "given": "Mazal", "surname": "Ellgherabli", "sex": "F", "birthDate": "14 NOV 1954", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500153", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500155", "name": "Sore Rashe", "given": "Sore Rashe", "surname": "", "sex": "F", "birthDate": "1873", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500018", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500156", "name": "Wolf Gringauz", "given": "Wolf", "surname": "Gringauz", "sex": "M", "birthDate": "4 NOV 1904", "birthPlace": "Polonia", "deathDate": "10 JUL 1979", "deathPlace": "Israel", "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500040", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500157", "name": "Eliezer Gringauz", "given": "Eliezer", "surname": "Gringauz", "sex": "M", "birthDate": "14 FEB 1936", "birthPlace": "Polonia", "deathDate": "14 FEB 1995", "deathPlace": "Israel", "deceased": true, "residence": null, "photo": null, "parentIds": ["I500156", "I500040"], "unions": [{"spouseId": "I500158", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500158", "name": "Yael Berelejis", "given": "Yael", "surname": "Berelejis", "sex": "F", "birthDate": "23 AUG 1936", "birthPlace": "Argentina", "deathDate": null, "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500157", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500159", "name": "Ester Gringauz", "given": "Ester", "surname": "Gringauz", "sex": "F", "birthDate": "19 FEB 1941", "birthPlace": "Argentina", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500156", "I500040"], "unions": [{"spouseId": "I500171", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500160", "name": "Janita Gringauz", "given": "Janita", "surname": "Gringauz", "sex": "F", "birthDate": "7 MAR 1948", "birthPlace": "Argentina", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500156", "I500040"], "unions": [{"spouseId": "I500183", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500161", "name": "Ilan Gringauz", "given": "Ilan", "surname": "Gringauz", "sex": "M", "birthDate": "9 OCT 1959", "birthPlace": "Israel", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500157", "I500158"], "unions": [{"spouseId": "I500164", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500162", "name": "Gabi Gringauz", "given": "Gabi", "surname": "Gringauz", "sex": "M", "birthDate": "JUL 1965", "birthPlace": "Israel", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500157", "I500158"], "unions": [{"spouseId": "I500167", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500163", "name": "Dalia Gringauz", "given": "Dalia", "surname": "Gringauz", "sex": "F", "birthDate": null, "birthPlace": "Israel", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500157", "I500158"], "unions": [{"spouseId": "I500169", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500164", "name": "", "given": "", "surname": "", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500161", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500165", "name": "Shelley Gringauz", "given": "Shelley", "surname": "Gringauz", "sex": "F", "birthDate": "1990", "birthPlace": "Germany", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500161", "I500164"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500166", "name": "Tom Gringauz", "given": "Tom", "surname": "Gringauz", "sex": "M", "birthDate": "1993", "birthPlace": "Germany", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500161", "I500164"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500167", "name": "Cleopatra", "given": "Cleopatra", "surname": "", "sex": "F", "birthDate": null, "birthPlace": "Brazil", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500162", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500168", "name": "Dafna Gringauz", "given": "Dafna", "surname": "Gringauz", "sex": "F", "birthDate": null, "birthPlace": "Brazil", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500162", "I500167"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500169", "name": "Avishai Inbar", "given": "Avishai", "surname": "Inbar", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500163", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500170", "name": "Gaia", "given": "Gaia", "surname": "", "sex": "F", "birthDate": null, "birthPlace": "Israel", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500169", "I500163"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500171", "name": "David Topolanski", "given": "David", "surname": "Topolanski", "sex": "M", "birthDate": "5 SEP 1940", "birthPlace": "Argentina", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500159", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500172", "name": "Anat Topolanski", "given": "Anat", "surname": "Topolanski", "sex": "F", "birthDate": "28 DEC 1962", "birthPlace": "Israel", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500171", "I500159"], "unions": [{"spouseId": "I500174", "marrDate": "13 APR 1989", "marrPlace": "Israel"}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500173", "name": "Hagi Topolanski", "given": "Hagi", "surname": "Topolanski", "sex": "M", "birthDate": "18 SEP 1965", "birthPlace": "Israel", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500171", "I500159"], "unions": [{"spouseId": "I500178", "marrDate": "6 SEP 1988", "marrPlace": "Israel"}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500174", "name": "Ariel Faigon", "given": "Ariel", "surname": "Faigon", "sex": "M", "birthDate": null, "birthPlace": "Israel", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500172", "marrDate": "13 APR 1989", "marrPlace": "Israel"}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500175", "name": "Gaia Faigon", "given": "Gaia", "surname": "Faigon", "sex": "F", "birthDate": "9 AUG 1995", "birthPlace": "U.S.A.", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500174", "I500172"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500176", "name": "Ori Faigon", "given": "Ori", "surname": "Faigon", "sex": "M", "birthDate": "25 MAY 1998", "birthPlace": "U.S.A", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500174", "I500172"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500177", "name": "Benjamin Faigon", "given": "Benjamin", "surname": "Faigon", "sex": "M", "birthDate": "14 NOV 2002", "birthPlace": "U.S.A", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500174", "I500172"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500178", "name": "Roni Levy", "given": "Roni", "surname": "Levy", "sex": "F", "birthDate": "14 AUG 1964", "birthPlace": "Israel", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500173", "marrDate": "6 SEP 1988", "marrPlace": "Israel"}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500179", "name": "Chen Topolanski", "given": "Chen", "surname": "Topolanski", "sex": "F", "birthDate": "5 JAN 1992", "birthPlace": "Israel", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500173", "I500178"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500180", "name": "Ran Topolanski", "given": "Ran", "surname": "Topolanski", "sex": "M", "birthDate": "21 JUN 1995", "birthPlace": "Israel", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500173", "I500178"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500181", "name": "Shai Topolansky", "given": "Shai", "surname": "Topolansky", "sex": "F", "birthDate": "9 AUG 1998", "birthPlace": "Israel", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500173", "I500178"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500182", "name": "Dar Topolanski", "given": "Dar", "surname": "Topolanski", "sex": "M", "birthDate": "8 JAN 2004", "birthPlace": "Israel", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500173", "I500178"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500183", "name": "Isaak Grinberg", "given": "Isaak", "surname": "Grinberg", "sex": "M", "birthDate": null, "birthPlace": "Brazil", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500160", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500184", "name": "Shirly Grinberg", "given": "Shirly", "surname": "Grinberg", "sex": "F", "birthDate": "7 JAN 1976", "birthPlace": "Israel", "deathDate": "MAR 2004", "deathPlace": "Israel", "deceased": true, "residence": null, "photo": null, "parentIds": ["I500183", "I500160"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500185", "name": "Adi Grinberg", "given": "Adi", "surname": "Grinberg", "sex": "M", "birthDate": "12 AUG 1980", "birthPlace": "Israel", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500183", "I500160"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500186", "name": "Ludmila", "given": "Ludmila", "surname": "", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500022", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500187", "name": "Szeina Rakowszczyk", "given": "Szeina", "surname": "Rakowszczyk", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500022", "I500186"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500188", "name": "Felix Fishman", "given": "Felix", "surname": "Fishman", "sex": "M", "birthDate": "1933", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500065", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500189", "name": "Roberto Fishman", "given": "Roberto", "surname": "Fishman", "sex": "M", "birthDate": "8 FEB 1957", "birthPlace": "Argentina", "deathDate": null, "deathPlace": "Argentina", "deceased": true, "residence": null, "photo": null, "parentIds": ["I500188", "I500065"], "unions": [{"spouseId": "I500191", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500190", "name": "Mario Fishman", "given": "Mario", "surname": "Fishman", "sex": "M", "birthDate": "18 MAR 1955", "birthPlace": "Argentina", "deathDate": null, "deathPlace": "Argentina", "deceased": true, "residence": null, "photo": null, "parentIds": ["I500188", "I500065"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500191", "name": "Maria de los Angeles", "given": "Maria de los Angeles", "surname": "", "sex": "F", "birthDate": "19 JUL 1956", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500189", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500192", "name": "Valeria Liliana Fishman", "given": "Valeria Liliana", "surname": "Fishman", "sex": "F", "birthDate": "23 SEP 1983", "birthPlace": "Argentina", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500189", "I500191"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500193", "name": "Natalia Soledad Fishman", "given": "Natalia Soledad", "surname": "Fishman", "sex": "F", "birthDate": "19 MAR 1987", "birthPlace": "Argentina", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500189", "I500191"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500194", "name": "Nicole Kujawski", "given": "Nicole", "surname": "Kujawski", "sex": "F", "birthDate": "4 SEP 2002", "birthPlace": "Argentina", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500094", "I500092"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500195", "name": "Michelle Judith Rajman", "given": "Michelle Judith", "surname": "Rajman", "sex": "F", "birthDate": "19 AUG 1988", "birthPlace": "U.S.A", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500069", "I500071"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500196", "name": "Brian Keating", "given": "Brian", "surname": "Keating", "sex": "M", "birthDate": null, "birthPlace": "U.S.A", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500070", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500197", "name": "Aaron Mordechai Keating", "given": "Aaron Mordechai", "surname": "Keating", "sex": "M", "birthDate": "9 APR 1995", "birthPlace": "U.S.A", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500196", "I500070"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500198", "name": "Uzi Sagir", "given": "Uzi", "surname": "Sagir", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500082", "marrDate": "4 AUG 1985", "marrPlace": "U.S.A"}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500199", "name": "Gal Sagir", "given": "Gal", "surname": "Sagir", "sex": "M", "birthDate": "4 AUG 1989", "birthPlace": "Israel", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500198", "I500082"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500200", "name": "Itay Sagir", "given": "Itay", "surname": "Sagir", "sex": "M", "birthDate": "16 MAR 1993", "birthPlace": "Israel", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500198", "I500082"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500201", "name": "Maia Sagir", "given": "Maia", "surname": "Sagir", "sex": "F", "birthDate": null, "birthPlace": "Israel", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500198", "I500082"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500203", "name": "Harry Kantrovitch", "given": "Harry", "surname": "Kantrovitch", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500077", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500204", "name": "Elaine Kntrovitch", "given": "Elaine", "surname": "Kntrovitch", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500203", "I500077"], "unions": [{"spouseId": "I500205", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500205", "name": "Andy Fink", "given": "Andy", "surname": "Fink", "sex": "M", "birthDate": null, "birthPlace": "U.S.A", "deathDate": null, "deathPlace": "U.S.A", "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500204", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500206", "name": "Joshua Fink", "given": "Joshua", "surname": "Fink", "sex": "M", "birthDate": null, "birthPlace": "U.S.A", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500205", "I500204"], "unions": [{"spouseId": "I500208", "marrDate": "2003", "marrPlace": "U.S.A"}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500207", "name": "Aaron Fink", "given": "Aaron", "surname": "Fink", "sex": "M", "birthDate": null, "birthPlace": "U.S.A", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500205", "I500204"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500208", "name": "", "given": "", "surname": "", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500206", "marrDate": "2003", "marrPlace": "U.S.A"}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500209", "name": "Fink", "given": "", "surname": "Fink", "sex": "M", "birthDate": null, "birthPlace": "U.S.A", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500206", "I500208"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500210", "name": "David Kantrovitch", "given": "David", "surname": "Kantrovitch", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500203", "I500077"], "unions": [{"spouseId": "I500211", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500211", "name": "Amy", "given": "Amy", "surname": "", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500210", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500212", "name": "Justin Kantrovitch", "given": "Justin", "surname": "Kantrovitch", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500210", "I500211"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500213", "name": "Brad Michael Kantrovitch", "given": "Brad Michael", "surname": "Kantrovitch", "sex": "M", "birthDate": null, "birthPlace": "U.S.A", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500210", "I500211"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500214", "name": "Ezra", "given": "Ezra", "surname": "", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500085", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500215", "name": "Ellis", "given": "Ellis", "surname": "", "sex": "M", "birthDate": "2013", "birthPlace": "USA", "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500214", "I500085"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500216", "name": "Sceery", "given": "Sceery", "surname": "", "sex": "F", "birthDate": "2015", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500214", "I500085"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500217", "name": "Mina", "given": "Mina", "surname": "", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500084", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500218", "name": "Melissa", "given": "Melissa", "surname": "", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500086", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500219", "name": "Rakoff", "given": "", "surname": "Rakoff", "sex": "M", "birthDate": "2018", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500086", "I500218"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500220", "name": "Lois", "given": "Lois", "surname": "", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500081", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500221", "name": "Renne Rockoff", "given": "Renne", "surname": "Rockoff", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500074", "I500078"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500222", "name": "Jeff Rockoff", "given": "Jeff", "surname": "Rockoff", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500074", "I500078"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500223", "name": "Paula Rockoff", "given": "Paula", "surname": "Rockoff", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500074", "I500078"], "unions": [{"spouseId": "I500224", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500224", "name": "Lenny", "given": "Lenny", "surname": "", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500223", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500225", "name": "Stacy", "given": "Stacy", "surname": "", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500224", "I500223"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500226", "name": "Janis", "given": "Janis", "surname": "", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500076", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500227", "name": "Richard Rockoff", "given": "Richard", "surname": "Rockoff", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500076", "I500226"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500228", "name": "Nancy Jane Rockoff", "given": "Nancy Jane", "surname": "Rockoff", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500076", "I500226"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500229", "name": "Tommy Rockoff", "given": "Tommy", "surname": "Rockoff", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500076", "I500226"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500230", "name": "Norberto Casak", "given": "Norberto", "surname": "Casak", "sex": "M", "birthDate": "7 MAR 1940", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500231", "name": "Yaakov גרינשטין", "given": "Yaakov", "surname": "גרינשטין", "sex": "M", "birthDate": "1 MAR 1939", "birthPlace": "Rehovot, Rehovot, Center District, Israel", "deathDate": "8 MAY 1983", "deathPlace": "Rehovot, Rehovot, Center District, Israel", "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500232", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500232", "name": "Kronman קרונמן", "given": "", "surname": "Kronman קרונמן", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500233", "I500234"], "unions": [{"spouseId": "I500231", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500233", "name": "Gershon Kronman", "given": "Gershon", "surname": "Kronman", "sex": "M", "birthDate": "1921", "birthPlace": "Poland", "deathDate": "1992", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500235", "I500236"], "unions": [{"spouseId": "I500234", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500234", "name": "Miryam Lew לב", "given": "Miryam", "surname": "Lew לב", "sex": "F", "birthDate": "DEC 1922", "birthPlace": "Germany", "deathDate": "13 DEC 1945", "deathPlace": "Israel", "deceased": true, "residence": null, "photo": null, "parentIds": ["I500237", "I500238"], "unions": [{"spouseId": "I500233", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500235", "name": "Hersz Eliahu Kronman", "given": "Hersz Eliahu", "surname": "Kronman", "sex": "M", "birthDate": "19 MAR 1894", "birthPlace": "Poland", "deathDate": "1924", "deathPlace": "Poland", "deceased": true, "residence": null, "photo": null, "parentIds": ["I500239", "I500240"], "unions": [{"spouseId": "I500236", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500236", "name": "Itka  Itta Loba Mirantz", "given": "Itka / Itta Loba", "surname": "Mirantz", "sex": "F", "birthDate": "1893", "birthPlace": "Kutno", "deathDate": "1968", "deathPlace": "Israel", "deceased": true, "residence": null, "photo": null, "parentIds": ["I500241", "I500242"], "unions": [{"spouseId": "I500235", "marrDate": null, "marrPlace": null}, {"spouseId": "I500243", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500237", "name": "Marcel Lew", "given": "Marcel", "surname": "Lew", "sex": "M", "birthDate": "1901", "birthPlace": null, "deathDate": "9 SEP 1940", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500238", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500238", "name": "Margot Berghaim", "given": "Margot", "surname": "Berghaim", "sex": "F", "birthDate": "1898", "birthPlace": null, "deathDate": "19 AUG 1947", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500237", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500239", "name": "Gershon Kronman", "given": "Gershon", "surname": "Kronman", "sex": "M", "birthDate": "1855", "birthPlace": "Gmina Zduńska Wola, Lodz, Poland", "deathDate": "14 OCT 1914", "deathPlace": "Gmina Zduńska Wola, Lodz, Poland", "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500240", "marrDate": "11 FEB 1875", "marrPlace": "Zdunska Wola, Zduńska Wola County, Łódź Voivodeship, Poland"}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500240", "name": "Frayda Pinczewskaa", "given": "Frayda", "surname": "Pinczewskaa", "sex": "F", "birthDate": "1856", "birthPlace": "Gmina Zduńska Wola, Lodz, Poland", "deathDate": "12 FEB 1916", "deathPlace": "Gmina Zduńska Wola, Lodz, Poland", "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500239", "marrDate": "11 FEB 1875", "marrPlace": "Zdunska Wola, Zduńska Wola County, Łódź Voivodeship, Poland"}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500241", "name": "Jonasz Yehonatan Majranc   Majrantz", "given": "Jonasz Yehonatan", "surname": "Majranc   Majrantz", "sex": "M", "birthDate": "31 OCT 1858", "birthPlace": "Kalisz, Kalisz County, Greater Poland Voivodeship, Poland", "deathDate": "1931", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500242", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500242", "name": "Rahel Goldman", "given": "Rahel", "surname": "Goldman", "sex": "F", "birthDate": null, "birthPlace": "Zdunska Wola, Zduńska Wola County, Łódź Voivodeship, Poland", "deathDate": "1934", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500241", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500243", "name": "Shlomo Kalisher", "given": "Shlomo", "surname": "Kalisher", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500236", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500244", "name": "Gidon Lew", "given": "Gidon", "surname": "Lew", "sex": "M", "birthDate": "1924", "birthPlace": null, "deathDate": "2016", "deathPlace": null, "deceased": true, "residence": null, "photo": null, "parentIds": ["I500237", "I500238"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500251", "name": "Silvia Rabinovich", "given": "Silvia", "surname": "Rabinovich", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": [], "unions": [{"spouseId": "I500114", "marrDate": null, "marrPlace": null}], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500252", "name": "David Rubinstein", "given": "David", "surname": "Rubinstein", "sex": "M", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500114", "I500251"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500253", "name": "Ruth Rubinstein", "given": "Ruth", "surname": "Rubinstein", "sex": "F", "birthDate": null, "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500114", "I500251"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500254", "name": "Uriel Kujawski", "given": "Uriel", "surname": "Kujawski", "sex": "M", "birthDate": "5 OCT 2007", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500094", "I500092"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}, {"id": "I500255", "name": "Noah Kujawski", "given": "Noah", "surname": "Kujawski", "sex": "M", "birthDate": "17 SEP 2010", "birthPlace": null, "deathDate": null, "deathPlace": null, "deceased": false, "residence": null, "photo": null, "parentIds": ["I500094", "I500092"], "unions": [], "notes": [], "status": "confirmed", "source": "gedcom"}];
+const firebaseConfig = {"apiKey": "AIzaSyAPzmR_uGOu0T5V27n0mlPW9_VxGPk2a7k", "authDomain": "arbol-genealogico-rakowszczyk.firebaseapp.com", "projectId": "arbol-genealogico-rakowszczyk", "storageBucket": "arbol-genealogico-rakowszczyk.firebasestorage.app", "messagingSenderId": "928193124148", "appId": "1:928193124148:web:9336df7b1479556ebdb761"};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const COL = "arbol-genealogico";
+
+// ---------- State ----------
+let personas = {};      // id -> persona doc (confirmed, from firestore)
+let pendientes = [];    // pending change docs
+let historial = [];     // resolved change docs
+let config = { adminPasswordHash: null };
+let ready = false;
+
+let currentUser = null; // {id, name, isAdmin, isNew}
+let route = { screen: "login" };
+let toastTimer = null;
+
+function normalize(s){
+  if(!s) return "";
+  return s.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();
+}
+function uid(){ return "p_" + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+async function sha256(text){
+  const enc = new TextEncoder().encode(text);
+  const buf = await crypto.subtle.digest("SHA-256", enc);
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+
+// ---------- Firestore live sync ----------
+function listen(){
+  onSnapshot(query(collection(db, COL), where("type","==","persona")), snap => {
+    const p = {};
+    snap.forEach(d => p[d.id] = {...d.data(), id: d.id});
+    personas = p;
+    maybeSeed();
+    render();
+  });
+  onSnapshot(query(collection(db, COL), where("type","==","pendiente")), snap => {
+    pendientes = [];
+    snap.forEach(d => pendientes.push({...d.data(), id:d.id}));
+    render();
+  });
+  onSnapshot(query(collection(db, COL), where("type","==","historial")), snap => {
+    historial = [];
+    snap.forEach(d => historial.push({...d.data(), id:d.id}));
+    historial.sort((a,b)=> (b.resolvedAt||"").localeCompare(a.resolvedAt||""));
+    render();
+  });
+  onSnapshot(doc(db, COL, "config"), d => {
+    if(d.exists()) config = d.data();
+    ready = true;
+    render();
+  });
+}
+
+let seedAttempted = false;
+async function maybeSeed(){
+  if(seedAttempted) return;
+  if(Object.keys(personas).length > 0) return; // already has data
+  seedAttempted = true;
+  const batchSize = 400;
+  for(let i=0;i<SEED.length;i+=batchSize){
+    const batch = writeBatch(db);
+    SEED.slice(i,i+batchSize).forEach(p=>{
+      batch.set(doc(db, COL, p.id), {...p, type:"persona"});
+    });
+    await batch.commit();
+  }
+  await setDoc(doc(db, COL, "config"), {type:"config", adminPasswordHash: null, seeded:true}, {merge:true});
+}
+
+// ---------- Relation helpers ----------
+function getParents(id){
+  const p = personas[id];
+  if(!p) return [];
+  return (p.parentIds||[]).filter(x=>personas[x]);
+}
+function getChildren(id){
+  return Object.values(personas).filter(p => (p.parentIds||[]).includes(id)).map(p=>p.id);
+}
+function getUnions(id){
+  const p = personas[id];
+  if(!p) return [];
+  return (p.unions||[]).filter(u=>personas[u.spouseId] || u.spouseName);
+}
+function getSpouseIds(id){ return getUnions(id).map(u=>u.spouseId).filter(Boolean); }
+function getSiblings(id){
+  const parents = getParents(id);
+  if(parents.length===0) return [];
+  const sibs = new Set();
+  parents.forEach(pid => getChildren(pid).forEach(c => { if(c!==id) sibs.add(c); }));
+  return Array.from(sibs);
+}
+function ancestorsWithDistance(id){
+  const map = {}; let frontier = [id]; let dist = 0;
+  const visited = new Set([id]);
+  while(frontier.length){
+    const next = [];
+    frontier.forEach(pid=>{
+      getParents(pid).forEach(par=>{
+        if(!visited.has(par)){ visited.add(par); map[par]=dist+1; next.push(par); }
+      });
+    });
+    frontier = next; dist++;
+    if(dist>15) break;
+  }
+  return map;
+}
+function personName(id){
+  const p = personas[id];
+  return p ? p.name : "Desconocido";
+}
+const ORDINALS = ["","segundo","tercero","cuarto","quinto","sexto","séptimo","octavo","noveno","décimo"];
+const DIRECT_UP = ["","padre/madre","abuelo/a","bisabuelo/a","tatarabuelo/a"];
+const DIRECT_DOWN = ["","hijo/a","nieto/a","bisnieto/a","tataranieto/a"];
+function ordinalUp(n){ return n<DIRECT_UP.length ? DIRECT_UP[n] : `ascendiente de ${n}ª generación`; }
+function ordinalDown(n){ return n<DIRECT_DOWN.length ? DIRECT_DOWN[n] : `descendiente de ${n}ª generación`; }
+
+function bloodKinship(aId,bId){
+  if(aId===bId) return "la misma persona";
+  const aAnc = ancestorsWithDistance(aId); aAnc[aId]=0;
+  const bAnc = ancestorsWithDistance(bId); bAnc[bId]=0;
+  if(bAnc[aId]!==undefined && bAnc[aId]>0) return ordinalDown(bAnc[aId]) + " (línea directa)";
+  if(aAnc[bId]!==undefined && aAnc[bId]>0) return ordinalUp(aAnc[bId]) + " (línea directa)";
+  let best=null;
+  Object.keys(aAnc).forEach(anc=>{
+    if(bAnc[anc]!==undefined){
+      const dA=aAnc[anc], dB=bAnc[anc];
+      if(dA===0||dB===0) return;
+      if(!best || (dA+dB) < (best.dA+best.dB)) best={anc,dA,dB};
+    }
+  });
+  if(!best) return null;
+  const {dA,dB} = best;
+  const m = Math.min(dA,dB), diff = Math.abs(dA-dB);
+  if(m===1 && diff===0) return "hermano/a";
+  if(m===1 && diff>=1){
+    const greats = diff-1;
+    const prefix = greats===0?"":( "de ".repeat(0) );
+    const tio = greats===0?"tío/tía":("tío/tía "+ (greats===1?"abuelo/a":Array(greats).fill("bisabuelo/a")[0]) );
+    // build avuncular chain
+    const upWord = dA<dB ? buildAvuncular(diff,false) : buildAvuncular(diff,true);
+    return upWord;
+  }
+  const degree = m-1;
+  const cousinLabel = degree===1 ? "primo/a hermano/a (primer grado)" : `primo/a ${ORDINALS[degree]||degree+"º"}`;
+  if(diff===0) return cousinLabel;
+  const vez = diff===1 ? "vez" : "veces";
+  return `${cousinLabel}, ${diff}ª ${vez} removido/a`;
+}
+function buildAvuncular(diff, aIsOlderLine){
+  // diff=1 => tio/sobrino ; diff=2 => tio abuelo/sobrino nieto ; diff=3 => tio bisabuelo/sobrino bisnieto
+  const uncleWords = ["tío/tía","tío/tía abuelo/a","tío/tía bisabuelo/a","tío/tía tatarabuelo/a"];
+  const nieceWords = ["sobrino/a","sobrino/a nieto/a","sobrino/a bisnieto/a","sobrino/a tataranieto/a"];
+  const idx = Math.min(diff-1, uncleWords.length-1);
+  return aIsOlderLine ? uncleWords[idx] : nieceWords[idx];
+}
+function kinshipLabel(aId,bId){
+  if(aId===bId) return "la misma persona";
+  // direct spouse
+  if(getSpouseIds(aId).includes(bId)) return "pareja / cónyuge";
+  const blood = bloodKinship(aId,bId);
+  if(blood) return blood;
+  // in-laws: check spouse of A related to B, or spouse of B related to A
+  for(const sId of getSpouseIds(aId)){
+    const rel = bloodKinship(sId,bId);
+    if(rel){
+      if(rel==="hermano/a") return "cuñado/a";
+      if(rel.includes("(línea directa)") && rel.startsWith("padre")) return "suegro/a";
+      if(rel.includes("(línea directa)") && rel.startsWith("hijo")) return "hijastro/a";
+      return "pariente político/a (" + rel + " de tu pareja)";
+    }
+  }
+  for(const sId of getSpouseIds(bId)){
+    const rel = bloodKinship(aId,sId);
+    if(rel){
+      if(rel==="hermano/a") return "cuñado/a";
+      if(rel.includes("(línea directa)") && rel.startsWith("hijo")) return "yerno/nuera";
+      if(rel.includes("(línea directa)") && rel.startsWith("padre")) return "padrastro/madrastra";
+      return "pariente político/a (cónyuge de tu " + rel + ")";
+    }
+  }
+  return null;
+}
+
+// ---------- Pending overlay ----------
+function pendingEditsFor(personId){
+  return pendientes.filter(c => c.kind==="editPerson" && c.targetId===personId);
+}
+function pendingNotesFor(personId){
+  return pendientes.filter(c => c.kind==="note" && c.targetId===personId);
+}
+function pendingNewPeople(){
+  return pendientes.filter(c => c.kind==="newPerson");
+}
+function pendingUnions(){
+  return pendientes.filter(c => c.kind==="newUnion");
+}
+function mergedPerson(id){
+  const base = personas[id];
+  if(!base) return null;
+  let merged = {...base};
+  pendingEditsFor(id).forEach(c=>{
+    Object.keys(c.payload||{}).forEach(k=>{
+      merged["__pending_"+k] = c.payload[k];
+    });
+  });
+  return merged;
+}
+function extendedChildren(id){
+  const confirmed = getChildren(id);
+  const pendingKids = pendingNewPeople().filter(c => (c.payload.parentIds||[]).includes(id)).map(c=>"pend_"+c.id);
+  return [...confirmed, ...pendingKids];
+}
+function extendedSpouseUnions(id){
+  const confirmed = getUnions(id).map(u=>({...u, pending:false}));
+  const pend = pendingUnions().filter(c=>c.payload.id1===id||c.payload.id2===id).map(c=>{
+    const otherId = c.payload.id1===id?c.payload.id2:c.payload.id1;
+    return {spouseId:otherId, marrDate:c.payload.marrDate, pending:true, pendingId:c.id};
+  });
+  const pendNew = pendingNewPeople().filter(c=>c.payload.spouseOf===id).map(c=>({spouseId:"pend_"+c.id, pending:true, pendingId:c.id}));
+  return [...confirmed, ...pend, ...pendNew];
+}
+function resolveDisplayPerson(id){
+  if(id.startsWith("pend_")){
+    const pid = id.slice(5);
+    const c = pendientes.find(x=>x.id===pid);
+    if(!c) return null;
+    return {id, name:c.payload.name, sex:c.payload.sex, birthDate:c.payload.birthDate, deathDate:null,
+      deceased:false, photo:null, isPendingGhost:true, pendingId:pid};
+  }
+  return mergedPerson(id);
+}
+
+// ---------- UI helpers ----------
+function initials(name){
+  if(!name) return "?";
+  const parts = name.trim().split(/\s+/);
+  return ((parts[0]?.[0]||"") + (parts[1]?.[0]||"")).toUpperCase();
+}
+function avatarHtml(p){
+  if(p && p.photo) return `<div class="avatar"><img src="${p.photo}" alt=""></div>`;
+  return `<div class="avatar">${initials(p ? p.name : "?")}</div>`;
+}
+function dateShort(d){
+  if(!d) return "";
+  return d;
+}
+function lifespan(p){
+  const b = p.birthDate ? p.birthDate.match(/\d{4}/) : null;
+  const d = p.deathDate ? p.deathDate.match(/\d{4}/) : null;
+  const bYear = b ? b[0] : "?";
+  if(p.deceased || d) return `${bYear} – ${d ? d[0] : "?"}`;
+  return `${bYear}`;
+}
+function toast(msg){
+  const el = document.getElementById("toast-el");
+  if(el){ el.remove(); }
+  const div = document.createElement("div");
+  div.id = "toast-el"; div.className = "toast"; div.textContent = msg;
+  document.body.appendChild(div);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>div.remove(), 2600);
+}
+
+function personCardHtml(id, opts){
+  opts = opts || {};
+  const p = resolveDisplayPerson(id);
+  if(!p) return "";
+  const pendingBadge = p.isPendingGhost ? '<span class="badge">Pendiente</span>' : "";
+  const cls = "person-card" + (opts.center ? " center":"") + (p.isPendingGhost ? " pending":"");
+  return `<div class="${cls}" onclick="openPerson('${id}')">
+    ${avatarHtml(p)}
+    <div class="pname">${p.name || "(sin nombre)"}</div>
+    <div class="pdates">${p.isPendingGhost ? "" : lifespan(p)}</div>
+    ${pendingBadge}
+  </div>`;
+}
+
+// ---------- Screens ----------
+function render(){
+  const app = document.getElementById("app");
+  const topbar = document.getElementById("topbar");
+  if(!ready){ app.innerHTML = `<div class="center-screen"><p>Cargando árbol familiar…</p></div>`; return; }
+  if(!currentUser){
+    topbar.style.display="none";
+    app.innerHTML = renderLogin();
+    attachLoginEvents();
+    return;
+  }
+  topbar.style.display="flex";
+  document.getElementById("whoami").textContent = currentUser.name + (currentUser.isAdmin ? " · admin" : "");
+  if(route.screen==="home") app.innerHTML = renderHome();
+  else if(route.screen==="tree") app.innerHTML = renderTree(route.centerId || currentUser.id, false);
+  else if(route.screen==="fulltree") app.innerHTML = renderTree(route.centerId || currentUser.id, true);
+  else if(route.screen==="kinship") app.innerHTML = renderKinship();
+  else if(route.screen==="timeline") app.innerHTML = renderTimeline();
+  else if(route.screen==="search") app.innerHTML = renderSearch();
+  else if(route.screen==="admin") app.innerHTML = renderAdmin();
+  else if(route.screen==="places") app.innerHTML = renderPlaces();
+  else app.innerHTML = renderHome();
+
+  if(route.modalPersonId){
+    document.getElementById("app").insertAdjacentHTML("beforeend", renderPersonModal(route.modalPersonId));
+  }
+  if(route.formType){
+    document.getElementById("app").insertAdjacentHTML("beforeend", renderForm());
+  }
+}
+
+function renderLogin(){
+  return `<div class="center-screen"><div class="login-box">
+    <div class="brand">
+      <h1>🌳 Árbol Rakowszczyk</h1>
+      <p>Identificate para ver tu lugar en la familia</p>
+    </div>
+    <div class="card">
+      <label>¿Quién sos?</label>
+      <div class="autocomplete-wrap">
+        <input type="text" id="login-input" placeholder="Empezá a escribir tu nombre..." autocomplete="off">
+        <div id="login-suggestions"></div>
+      </div>
+      <div id="login-new-option" style="margin-top:.6rem;"></div>
+      <div id="login-password-block" style="display:none; margin-top:.8rem;">
+        <label id="pw-label">Clave</label>
+        <input type="password" id="login-password" placeholder="Ingresá tu clave">
+        <div class="row" style="margin-top:.6rem;">
+          <button class="btn" id="pw-confirm-btn">Confirmar</button>
+          <button class="btn secondary" onclick="cancelAdminFlow()">Cancelar</button>
+        </div>
+        <div id="pw-error" style="color:var(--danger); font-size:.82rem; margin-top:.4rem;"></div>
+      </div>
+    </div>
+  </div></div>`;
+}
+
+let loginMatchId = null;
+function attachLoginEvents(){
+  const input = document.getElementById("login-input");
+  const sugBox = document.getElementById("login-suggestions");
+  const newBox = document.getElementById("login-new-option");
+  input.addEventListener("input", ()=>{
+    const val = input.value;
+    const nval = normalize(val);
+    newBox.innerHTML = "";
+    if(nval.length < 1){ sugBox.innerHTML=""; return; }
+    const matches = Object.values(personas).filter(p=>normalize(p.name).includes(nval)).slice(0,8);
+    sugBox.className = "suggestions";
+    sugBox.innerHTML = matches.map(p=>`<div onclick="selectLoginPerson('${p.id}')">${p.name} ${p.deceased?'✝':''}</div>`).join("");
+    if(val.trim().length>1 && !matches.some(p=>normalize(p.name)===nval)){
+      newBox.innerHTML = `<button class="btn secondary small" onclick="selectNewIdentity()">No estoy en el árbol — continuar como "${val.trim()}"</button>`;
+    }
+  });
+  document.getElementById("pw-confirm-btn").onclick = confirmAdminPassword;
+}
+window.selectLoginPerson = function(id){
+  const p = personas[id];
+  document.getElementById("login-suggestions").innerHTML="";
+  document.getElementById("login-input").value = p.name;
+  document.getElementById("login-new-option").innerHTML="";
+  loginMatchId = id;
+  if(normalize(p.name)==="hugo rakowszczyk"){
+    document.getElementById("login-password-block").style.display="block";
+    document.getElementById("pw-label").textContent = config.adminPasswordHash ? "Ingresá tu clave de administrador" : "Es la primera vez: creá una clave de administrador";
+  } else {
+    currentUser = {id, name:p.name, isAdmin:false};
+    route = {screen:"home"};
+    render();
+  }
+};
+window.selectNewIdentity = function(){
+  const name = document.getElementById("login-input").value.trim();
+  if(!name) return;
+  currentUser = {id: uid(), name, isAdmin:false, isNew:true};
+  route = {screen:"home"};
+  render();
+};
+window.cancelAdminFlow = function(){
+  document.getElementById("login-password-block").style.display="none";
+  loginMatchId = null;
+};
+window.confirmAdminPassword = async function(){
+  const pw = document.getElementById("login-password").value;
+  const errEl = document.getElementById("pw-error");
+  if(!pw || pw.length<4){ errEl.textContent="La clave debe tener al menos 4 caracteres."; return; }
+  const hash = await sha256(pw);
+  if(!config.adminPasswordHash){
+    await updateDoc(doc(db, COL, "config"), {adminPasswordHash: hash});
+    toast("Clave de administrador creada.");
+    currentUser = {id: loginMatchId, name: personas[loginMatchId].name, isAdmin:true};
+    route = {screen:"home"}; render();
+  } else {
+    if(hash === config.adminPasswordHash){
+      currentUser = {id: loginMatchId, name: personas[loginMatchId].name, isAdmin:true};
+      route = {screen:"home"}; render();
+    } else {
+      errEl.textContent = "Clave incorrecta.";
+    }
+  }
+};
+
+window.goHome = function(){ route = {screen:"home"}; render(); };
+window.logout = function(){ currentUser=null; route={screen:"login"}; render(); };
+
+function upcomingDates(){
+  const today = new Date();
+  const items = [];
+  Object.values(personas).forEach(p=>{
+    if(p.deceased) return;
+    if(p.birthDate){
+      const m = p.birthDate.match(/(\d{1,2})\s+([A-Z]{3})\s+(\d{4})/i) || p.birthDate.match(/([A-Z]{3})\s+(\d{4})/i);
+      // simplistic month parse
+      const months = {JAN:0,FEB:1,MAR:2,APR:3,MAY:4,JUN:5,JUL:6,AUG:7,SEP:8,OCT:9,NOV:10,DEC:11};
+      let day=1, mon=null;
+      const full = p.birthDate.match(/(\d{1,2})\s+([A-Za-z]{3})\s+\d{4}/);
+      if(full){ day=parseInt(full[1]); mon=months[full[2].toUpperCase()]; }
+      if(mon===null) return;
+      let next = new Date(today.getFullYear(), mon, day);
+      if(next < today) next = new Date(today.getFullYear()+1, mon, day);
+      const diffDays = Math.round((next-today)/86400000);
+      if(diffDays<=30) items.push({type:"cumpleaños", name:p.name, date:next, diffDays});
+    }
+  });
+  Object.values(personas).forEach(p=>{
+    getUnions(p.id).forEach(u=>{
+      if(u.marrDate && personas[u.spouseId] && p.id < u.spouseId){
+        const months = {JAN:0,FEB:1,MAR:2,APR:3,MAY:4,JUN:5,JUL:6,AUG:7,SEP:8,OCT:9,NOV:10,DEC:11};
+        const full = u.marrDate.match(/(\d{1,2})\s+([A-Za-z]{3})\s+\d{4}/);
+        if(!full) return;
+        const day=parseInt(full[1]), mon=months[full[2].toUpperCase()];
+        let next = new Date(today.getFullYear(), mon, day);
+        if(next < today) next = new Date(today.getFullYear()+1, mon, day);
+        const diffDays = Math.round((next-today)/86400000);
+        if(diffDays<=30) items.push({type:"aniversario", name:p.name+" y "+personas[u.spouseId].name, date:next, diffDays});
+      }
+    });
+  });
+  items.sort((a,b)=>a.diffDays-b.diffDays);
+  return items;
+}
+
+function renderHome(){
+  const pendingCount = pendientes.length;
+  const upcoming = upcomingDates();
+  return `<main>
+    <div class="card section">
+      <h2>Hola, ${currentUser.name.split(" ")[0]}</h2>
+      ${upcoming.length ? upcoming.map(u=>`<div style="font-size:.88rem; padding:.25rem 0;">🎉 ${u.type==='cumpleaños'?'Cumpleaños':'Aniversario'} de <strong>${u.name}</strong> — ${u.diffDays===0?"¡hoy!":u.diffDays===1?"mañana":`en ${u.diffDays} días`}</div>`).join("") : '<p class="empty">No hay cumpleaños ni aniversarios en los próximos 30 días.</p>'}
+    </div>
+    <div class="menu-grid">
+      <div class="menu-item" onclick="goTree()"><span class="icon">🌳</span><span class="label">Mi árbol</span></div>
+      <div class="menu-item" onclick="goFullTree()"><span class="icon">🗺️</span><span class="label">Árbol completo</span></div>
+      <div class="menu-item" onclick="goKinship()"><span class="icon">🔗</span><span class="label">Parentesco</span></div>
+      <div class="menu-item" onclick="goSearch()"><span class="icon">🔍</span><span class="label">Buscar persona</span></div>
+      <div class="menu-item" onclick="goTimeline()"><span class="icon">📜</span><span class="label">Línea de tiempo</span></div>
+      <div class="menu-item" onclick="goPlaces()"><span class="icon">📍</span><span class="label">Lugares</span></div>
+      ${currentUser.isAdmin ? `<div class="menu-item" onclick="goAdmin()"><span class="icon">🛡️</span><span class="label">Administrar</span>${pendingCount?`<span class="badge count" style="position:absolute; top:8px; right:8px;">${pendingCount}</span>`:""}</div>` : ""}
+    </div>
+    ${currentUser.isNew ? `<p class="empty" style="margin-top:1rem;">Todavía no estás vinculado al árbol. Pedile a Hugo que te conecte con tus familiares.</p>` : ""}
+  </main>`;
+}
+window.goTree = function(){ route={screen:"tree", centerId: currentUser.id}; render(); };
+window.goFullTree = function(){ route={screen:"fulltree", centerId: currentUser.id}; render(); };
+window.goKinship = function(){ route={screen:"kinship"}; render(); };
+window.goSearch = function(){ route={screen:"search"}; render(); };
+window.goTimeline = function(){ route={screen:"timeline"}; render(); };
+window.goAdmin = function(){ route={screen:"admin"}; render(); };
+window.goPlaces = function(){ route={screen:"places"}; render(); };
+window.recenter = function(id){ route.centerId = id; render(); };
+
+function renderGenRow(label, ids){
+  if(!ids.length) return "";
+  return `<div class="gen-row"><div class="gen-label">${label}</div><div class="cards-scroll">${ids.map(id=>personCardHtml(id)).join("")}</div></div>`;
+}
+
+function renderTree(centerId, full){
+  const center = personas[centerId];
+  if(!center && !currentUser.isNew){
+    return `<main><p class="empty">Persona no encontrada.</p></main>`;
+  }
+  if(!center){
+    return `<main><p class="empty">Todavía no estás vinculado al árbol familiar. Pedile a Hugo que te conecte.</p></main>`;
+  }
+  const parents = getParents(centerId);
+  const grandparents = full ? Array.from(new Set(parents.flatMap(p=>getParents(p)))) : [];
+  const greatgrand = full ? Array.from(new Set(grandparents.flatMap(p=>getParents(p)))) : [];
+  const siblings = getSiblings(centerId);
+  const unions = extendedSpouseUnions(centerId);
+  const spouseIds = unions.map(u=>u.spouseId);
+  const children = extendedChildren(centerId);
+  const grandchildren = full ? Array.from(new Set(children.flatMap(c=> c.startsWith("pend_")?[] : extendedChildren(c)))) : [];
+  const aunts = full ? Array.from(new Set(parents.flatMap(p=>getSiblings(p)))) : [];
+  const nephews = full ? Array.from(new Set(siblings.flatMap(s=>extendedChildren(s)))) : [];
+
+  let html = `<main>
+    <h2>${full ? "Árbol completo" : "Mi árbol"} — centrado en ${center.name}</h2>`;
+  if(full){
+    html += renderGenRow("Bisabuelos", greatgrand);
+    html += renderGenRow("Abuelos", grandparents);
+    html += renderGenRow("Tíos / tías", aunts);
+  }
+  html += renderGenRow("Padres", parents);
+  html += `<div class="gen-row"><div class="gen-label">Vos, pareja y hermanos</div><div class="cards-scroll">
+    ${siblings.map(id=>personCardHtml(id)).join("")}
+    ${personCardHtml(centerId, {center:true})}
+    ${spouseIds.map(id=>personCardHtml(id)).join("")}
+  </div></div>`;
+  html += renderGenRow("Hijos", children);
+  if(full){
+    html += renderGenRow("Sobrinos", nephews);
+    html += renderGenRow("Nietos", grandchildren);
+  }
+  if(centerId !== currentUser.id){
+    html += `<button class="btn secondary small" onclick="recenter('${currentUser.id}')">Volver a mi centro</button>`;
+  }
+  html += `</main>`;
+  return html;
+}
+
+window.openPerson = function(id){
+  if(id.startsWith("pend_")){
+    route.modalPersonId = id;
+  } else {
+    route.modalPersonId = id;
+  }
+  render();
+};
+window.closeModal = function(){ route.modalPersonId=null; route.formType=null; render(); };
+window.centerOnPerson = function(id){ route.modalPersonId=null; route.screen="tree"; route.centerId=id; render(); };
+
+function renderPersonModal(id){
+  const p = resolveDisplayPerson(id);
+  if(!p) return "";
+  if(p.isPendingGhost){
+    return `<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal">
+      <button class="modal-close" onclick="closeModal()">×</button>
+      <h2>${p.name} <span class="badge">Pendiente de aprobación</span></h2>
+      <p class="empty">Esta persona fue propuesta y todavía no fue confirmada por Hugo.</p>
+    </div></div>`;
+  }
+  const edits = pendingEditsFor(id);
+  const notes = (p.notes||[]).map(n=>({...n, pending:false}));
+  const pendingNotes = pendingNotesFor(id).map(c=>({text:c.payload.text, by:c.submittedBy, pending:true}));
+  const allNotes = [...notes, ...pendingNotes];
+  const unions = extendedSpouseUnions(id);
+  const siblings = getSiblings(id);
+  const parents = getParents(id);
+  const deathDate = p.__pending_deathDate || p.deathDate;
+  const deathPending = !!p.__pending_deathDate;
+  const residence = p.__pending_residence || p.residence;
+  const residencePending = !!p.__pending_residence;
+
+  return `<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div style="text-align:center;">${avatarHtml(p)}<h2 style="margin-top:.4rem;">${p.name}</h2></div>
+    <div class="kv"><span class="k">Nacimiento</span><span>${p.birthDate||"—"} ${p.birthPlace?("· "+p.birthPlace):""}</span></div>
+    <div class="kv"><span class="k">Fallecimiento</span><span>${deathDate || "—"} ${deathPending?'<span class="badge">Pendiente</span>':""}</span></div>
+    <div class="kv"><span class="k">Residencia</span><span>${residence || "—"} ${residencePending?'<span class="badge">Pendiente</span>':""}</span></div>
+    <div class="kv"><span class="k">Padres</span><span>${parents.length ? parents.map(personName).join(", ") : "—"}</span></div>
+    <div class="kv"><span class="k">Hermanos</span><span>${siblings.length ? siblings.map(personName).join(", ") : "—"}</span></div>
+    <div class="kv"><span class="k">Pareja(s)</span><span>${unions.length ? unions.map(u=>{
+        const sp = resolveDisplayPerson(u.spouseId);
+        return (sp?sp.name:"?") + (u.marrDate?` (casados: ${u.marrDate})`:"") + (u.pending?' <span class="badge">Pendiente</span>':"");
+      }).join("; ") : "—"}</span></div>
+    <h3 style="margin-top:1rem;">Notas / historias</h3>
+    ${allNotes.length ? allNotes.map(n=>`<div class="note-item ${n.pending?'pending':''}">${n.text} ${n.pending?'<span class="badge">Pendiente</span>':""}</div>`).join("") : '<p class="empty">Sin notas todavía.</p>'}
+    <div class="row" style="margin-top:1rem;">
+      <button class="btn small" onclick="openForm('addNote','${id}')">＋ Info adicional</button>
+      <button class="btn small" onclick="openForm('editDeath','${id}')">＋ Fallecimiento</button>
+      <button class="btn small" onclick="openForm('addSpouse','${id}')">＋ Pareja</button>
+      <button class="btn small" onclick="openForm('addChild','${id}')">＋ Hijo/a</button>
+      <button class="btn small" onclick="openForm('editResidence','${id}')">＋ Residencia</button>
+    </div>
+    <div class="row" style="margin-top:.6rem;">
+      <button class="btn secondary small" onclick="centerOnPerson('${id}')">Ver como centro del árbol</button>
+    </div>
+  </div></div>`;
+}
+
+// ---------- Forms (add data) ----------
+window.openForm = function(type, targetId){
+  route.formType = type;
+  route.formTarget = targetId;
+  render();
+};
+function renderForm(){
+  const type = route.formType, targetId = route.formTarget;
+  const p = personas[targetId];
+  const titleMap = {addNote:"Agregar información", editDeath:"Registrar fallecimiento", addSpouse:"Agregar pareja", addChild:"Agregar hijo/a", editResidence:"Actualizar residencia"};
+  let body = "";
+  if(type==="addNote"){
+    body = `<label>Texto</label><textarea id="f-note" rows="3" placeholder="Contá algo sobre ${p?p.name:''}..."></textarea>`;
+  } else if(type==="editDeath"){
+    body = `<label>Fecha de fallecimiento</label><input type="text" id="f-deathdate" placeholder="ej: 15 MAR 2020">
+            <label>Lugar</label><input type="text" id="f-deathplace" placeholder="ej: Buenos Aires, Argentina">`;
+  } else if(type==="editResidence"){
+    body = `<label>Residencia (país / ciudad)</label><input type="text" id="f-residence" placeholder="ej: Buenos Aires, Argentina" value="${p?.residence||''}">`;
+  } else if(type==="addSpouse"){
+    body = `<label>Nombre de la pareja</label>
+      <div class="autocomplete-wrap">
+        <input type="text" id="f-spouse-name" placeholder="Buscar o escribir nombre nuevo" autocomplete="off">
+        <div id="f-spouse-suggestions"></div>
+      </div>
+      <input type="hidden" id="f-spouse-id" value="">
+      <label>Fecha de casamiento (opcional)</label><input type="text" id="f-marrdate" placeholder="ej: 20 NOV 2010">`;
+  } else if(type==="addChild"){
+    body = `<label>Nombre del hijo/a</label><input type="text" id="f-child-name" placeholder="Nombre completo">
+      <label>Sexo</label><select id="f-child-sex"><option value="M">Masculino</option><option value="F">Femenino</option></select>
+      <label>Fecha de nacimiento (opcional)</label><input type="text" id="f-child-birth" placeholder="ej: 3 MAY 2015">
+      <label>Otro progenitor (opcional)</label>
+      <div class="autocomplete-wrap">
+        <input type="text" id="f-otherparent-name" placeholder="Buscar pareja existente" autocomplete="off">
+        <div id="f-otherparent-suggestions"></div>
+      </div>
+      <input type="hidden" id="f-otherparent-id" value="">`;
+  }
+  setTimeout(()=>attachFormAutocomplete(type), 0);
+  const willBePending = !currentUser.isAdmin;
+  return `<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <h2>${titleMap[type]}</h2>
+    ${body}
+    ${willBePending ? '<p class="empty" style="margin-top:.6rem;">Este cambio quedará pendiente de aprobación por Hugo.</p>' : '<p class="empty" style="margin-top:.6rem;">Como administrador, este cambio se aplica directamente.</p>'}
+    <div class="row" style="margin-top:1rem;">
+      <button class="btn" onclick="submitForm()">Guardar</button>
+      <button class="btn secondary" onclick="closeModal()">Cancelar</button>
+    </div>
+  </div></div>`;
+}
+function attachFormAutocomplete(type){
+  if(type==="addSpouse"){
+    const input = document.getElementById("f-spouse-name");
+    const sug = document.getElementById("f-spouse-suggestions");
+    if(!input) return;
+    input.addEventListener("input", ()=>{
+      const n = normalize(input.value);
+      document.getElementById("f-spouse-id").value = "";
+      if(n.length<1){ sug.innerHTML=""; return; }
+      const matches = Object.values(personas).filter(p=>normalize(p.name).includes(n)).slice(0,6);
+      sug.className="suggestions";
+      sug.innerHTML = matches.map(p=>`<div onclick="pickSpouse('${p.id}','${p.name.replace(/'/g,"\\'")}')">${p.name}</div>`).join("");
+    });
+  }
+  if(type==="addChild"){
+    const input = document.getElementById("f-otherparent-name");
+    const sug = document.getElementById("f-otherparent-suggestions");
+    if(!input) return;
+    input.addEventListener("input", ()=>{
+      const n = normalize(input.value);
+      document.getElementById("f-otherparent-id").value = "";
+      if(n.length<1){ sug.innerHTML=""; return; }
+      const matches = Object.values(personas).filter(p=>normalize(p.name).includes(n)).slice(0,6);
+      sug.className="suggestions";
+      sug.innerHTML = matches.map(p=>`<div onclick="pickOtherParent('${p.id}','${p.name.replace(/'/g,"\\'")}')">${p.name}</div>`).join("");
+    });
+  }
+}
+window.pickSpouse = function(id,name){
+  document.getElementById("f-spouse-id").value = id;
+  document.getElementById("f-spouse-name").value = name;
+  document.getElementById("f-spouse-suggestions").innerHTML="";
+};
+window.pickOtherParent = function(id,name){
+  document.getElementById("f-otherparent-id").value = id;
+  document.getElementById("f-otherparent-name").value = name;
+  document.getElementById("f-otherparent-suggestions").innerHTML="";
+};
+
+async function logHistory(entry){
+  const id = uid();
+  await setDoc(doc(db, COL, id), {...entry, type:"historial", id});
+}
+async function addPending(kind, targetId, payload){
+  const id = uid();
+  await setDoc(doc(db, COL, id), {
+    type:"pendiente", id, kind, targetId: targetId||null, payload,
+    submittedBy: currentUser.name, submittedAt: new Date().toISOString(), status:"pending"
+  });
+}
+
+window.submitForm = async function(){
+  const type = route.formType, targetId = route.formTarget;
+  const isAdmin = currentUser.isAdmin;
+  try{
+    if(type==="addNote"){
+      const text = document.getElementById("f-note").value.trim();
+      if(!text) return;
+      if(isAdmin){
+        await updateDoc(doc(db, COL, targetId), {notes: arrayUnion({text, by:currentUser.name, at:new Date().toISOString()})});
+        await logHistory({kind:"note", targetId, payload:{text}, submittedBy:currentUser.name, submittedAt:new Date().toISOString(), resolvedBy:currentUser.name, resolvedAt:new Date().toISOString(), status:"approved"});
+      } else {
+        await addPending("note", targetId, {text});
+      }
+      toast(isAdmin ? "Nota agregada." : "Nota enviada para aprobación.");
+    } else if(type==="editDeath"){
+      const deathDate = document.getElementById("f-deathdate").value.trim();
+      const deathPlace = document.getElementById("f-deathplace").value.trim();
+      const payload = {deathDate: deathDate||null, deathPlace: deathPlace||null, deceased:true};
+      if(isAdmin){
+        await updateDoc(doc(db, COL, targetId), payload);
+        await logHistory({kind:"editPerson", targetId, payload, submittedBy:currentUser.name, submittedAt:new Date().toISOString(), resolvedBy:currentUser.name, resolvedAt:new Date().toISOString(), status:"approved"});
+      } else {
+        await addPending("editPerson", targetId, payload);
+      }
+      toast(isAdmin ? "Dato actualizado." : "Cambio enviado para aprobación.");
+    } else if(type==="editResidence"){
+      const residence = document.getElementById("f-residence").value.trim();
+      if(!residence) return;
+      const payload = {residence};
+      if(isAdmin){
+        await updateDoc(doc(db, COL, targetId), payload);
+        await logHistory({kind:"editPerson", targetId, payload, submittedBy:currentUser.name, submittedAt:new Date().toISOString(), resolvedBy:currentUser.name, resolvedAt:new Date().toISOString(), status:"approved"});
+      } else {
+        await addPending("editPerson", targetId, payload);
+      }
+      toast(isAdmin ? "Residencia actualizada." : "Cambio enviado para aprobación.");
+    } else if(type==="addSpouse"){
+      const name = document.getElementById("f-spouse-name").value.trim();
+      const existingId = document.getElementById("f-spouse-id").value;
+      const marrDate = document.getElementById("f-marrdate").value.trim() || null;
+      if(!name) return;
+      if(existingId){
+        const payload = {id1: targetId, id2: existingId, marrDate};
+        if(isAdmin){
+          await updateDoc(doc(db, COL, targetId), {unions: arrayUnion({spouseId:existingId, marrDate})});
+          await updateDoc(doc(db, COL, existingId), {unions: arrayUnion({spouseId:targetId, marrDate})});
+          await logHistory({kind:"newUnion", payload, submittedBy:currentUser.name, submittedAt:new Date().toISOString(), resolvedBy:currentUser.name, resolvedAt:new Date().toISOString(), status:"approved"});
+        } else {
+          await addPending("newUnion", null, payload);
+        }
+      } else {
+        const payload = {name, spouseOf: targetId, marrDate};
+        if(isAdmin){
+          const newId = uid();
+          await setDoc(doc(db, COL, newId), {type:"persona", id:newId, name, sex:null, parentIds:[], unions:[{spouseId:targetId, marrDate}], notes:[], status:"confirmed"});
+          await updateDoc(doc(db, COL, targetId), {unions: arrayUnion({spouseId:newId, marrDate})});
+          await logHistory({kind:"newPerson", payload, submittedBy:currentUser.name, submittedAt:new Date().toISOString(), resolvedBy:currentUser.name, resolvedAt:new Date().toISOString(), status:"approved"});
+        } else {
+          await addPending("newPerson", null, payload);
+        }
+      }
+      toast(isAdmin ? "Pareja agregada." : "Cambio enviado para aprobación.");
+    } else if(type==="addChild"){
+      const name = document.getElementById("f-child-name").value.trim();
+      const sex = document.getElementById("f-child-sex").value;
+      const birthDate = document.getElementById("f-child-birth").value.trim() || null;
+      const otherParentId = document.getElementById("f-otherparent-id").value || null;
+      if(!name) return;
+      const parentIds = [targetId, otherParentId].filter(Boolean);
+      const payload = {name, sex, birthDate, parentIds};
+      if(isAdmin){
+        const newId = uid();
+        await setDoc(doc(db, COL, newId), {type:"persona", id:newId, name, sex, birthDate, parentIds, unions:[], notes:[], status:"confirmed"});
+        await logHistory({kind:"newPerson", payload, submittedBy:currentUser.name, submittedAt:new Date().toISOString(), resolvedBy:currentUser.name, resolvedAt:new Date().toISOString(), status:"approved"});
+      } else {
+        await addPending("newPerson", null, payload);
+      }
+      toast(isAdmin ? "Hijo/a agregado/a." : "Cambio enviado para aprobación.");
+    }
+  }catch(e){
+    console.error(e);
+    toast("Ocurrió un error al guardar. Probá de nuevo.");
+    return;
+  }
+  route.formType=null; route.formTarget=null; route.modalPersonId=null;
+  render();
+};
+
+// ---------- Kinship screen ----------
+function renderKinship(){
+  return `<main>
+    <h2>🔗 Grado de parentesco</h2>
+    <div class="card">
+      <label>Vos</label>
+      <input type="text" value="${currentUser.name}" disabled>
+      <label>¿Con quién querés saber tu parentesco?</label>
+      <div class="autocomplete-wrap">
+        <input type="text" id="kin-input" placeholder="Escribí un nombre..." autocomplete="off">
+        <div id="kin-suggestions"></div>
+      </div>
+      <div id="kin-result" style="margin-top:1rem;"></div>
+    </div>
+  </main>`;
+}
+window.__attachKinship = function(){
+  const input = document.getElementById("kin-input");
+  if(!input) return;
+  input.addEventListener("input", ()=>{
+    const n = normalize(input.value);
+    const sug = document.getElementById("kin-suggestions");
+    if(n.length<1){ sug.innerHTML=""; return; }
+    const matches = Object.values(personas).filter(p=>normalize(p.name).includes(n) && p.id!==currentUser.id).slice(0,8);
+    sug.className="suggestions";
+    sug.innerHTML = matches.map(p=>`<div onclick="computeKinship('${p.id}','${p.name.replace(/'/g,"\\'")}')">${p.name}</div>`).join("");
+  });
+};
+window.computeKinship = function(id,name){
+  document.getElementById("kin-suggestions").innerHTML="";
+  document.getElementById("kin-input").value = name;
+  const label = kinshipLabel(currentUser.id, id);
+  const resultEl = document.getElementById("kin-result");
+  if(currentUser.isNew || !personas[currentUser.id]){
+    resultEl.innerHTML = `<p class="empty">Todavía no estás vinculado al árbol, así que no puedo calcular tu parentesco.</p>`;
+  } else if(label){
+    resultEl.innerHTML = `<p style="font-size:1.05rem;"><strong>${name}</strong> es tu <strong>${label}</strong>.</p>`;
+  } else {
+    resultEl.innerHTML = `<p class="empty">No encontré un parentesco directo entre ambos en el árbol.</p>`;
+  }
+};
+
+// ---------- Timeline ----------
+function renderTimeline(){
+  const events = [];
+  Object.values(personas).forEach(p=>{
+    const by = p.birthDate ? p.birthDate.match(/\d{4}/) : null;
+    if(by) events.push({year:parseInt(by[0]), type:"Nacimiento", text:`Nace ${p.name}`});
+    const dy = p.deathDate ? p.deathDate.match(/\d{4}/) : null;
+    if(dy) events.push({year:parseInt(dy[0]), type:"Fallecimiento", text:`Fallece ${p.name}`});
+    getUnions(p.id).forEach(u=>{
+      if(u.marrDate && personas[u.spouseId] && p.id < u.spouseId){
+        const my = u.marrDate.match(/\d{4}/);
+        if(my) events.push({year:parseInt(my[0]), type:"Casamiento", text:`${p.name} se casa con ${personas[u.spouseId].name}`});
+      }
+    });
+  });
+  events.sort((a,b)=>a.year-b.year);
+  return `<main>
+    <h2>📜 Línea de tiempo familiar</h2>
+    <details class="timeline card" open>
+      <summary>${events.length} eventos registrados</summary>
+      ${events.map(e=>`<div class="tl-item"><div class="tl-year">${e.year}</div><div>${e.text} <span style="color:var(--ink-soft); font-size:.78rem;">· ${e.type}</span></div></div>`).join("")}
+    </details>
+  </main>`;
+}
+
+// ---------- Search ----------
+function renderSearch(){
+  return `<main>
+    <h2>🔍 Buscar persona</h2>
+    <div class="card">
+      <input type="text" id="search-input" placeholder="Escribí un nombre..." autocomplete="off">
+      <div class="search-results" id="search-results"></div>
+    </div>
+  </main>`;
+}
+window.__attachSearch = function(){
+  const input = document.getElementById("search-input");
+  if(!input) return;
+  input.addEventListener("input", ()=>{
+    const n = normalize(input.value);
+    const box = document.getElementById("search-results");
+    if(n.length<1){ box.innerHTML=""; return; }
+    const matches = Object.values(personas).filter(p=>normalize(p.name).includes(n)).slice(0,20);
+    box.innerHTML = matches.map(p=>`<div class="search-result-item" onclick="openPerson('${p.id}')">
+      <div class="mini-avatar">${p.photo?`<img src="${p.photo}">`:initials(p.name)}</div>
+      <div><div style="font-weight:600;">${p.name}</div><div style="font-size:.75rem; color:var(--ink-soft);">${lifespan(p)}</div></div>
+    </div>`).join("") || '<p class="empty">Sin resultados.</p>';
+  });
+};
+
+// ---------- Places ----------
+function renderPlaces(){
+  const groups = {};
+  Object.values(personas).forEach(p=>{
+    const place = p.residence || p.birthPlace;
+    if(!place) return;
+    if(!groups[place]) groups[place] = [];
+    groups[place].push(p);
+  });
+  const keys = Object.keys(groups).sort();
+  return `<main>
+    <h2>📍 Lugares</h2>
+    <p class="empty">Vista simple por lugar — un mapa geográfico interactivo puede sumarse más adelante.</p>
+    ${keys.map(k=>`<div class="place-group card" style="margin-bottom:.8rem;"><h3>${k}</h3>${groups[k].map(p=>p.name).join(", ")}</div>`).join("") || '<p class="empty">Todavía no hay lugares cargados.</p>'}
+  </main>`;
+}
+
+// ---------- Admin ----------
+function renderAdmin(){
+  return `<main>
+    <h2>🛡️ Administración</h2>
+    <div class="tabs">
+      <button class="tab-btn ${route.adminTab!=='history'?'active':''}" onclick="setAdminTab('pending')">Pendientes (${pendientes.length})</button>
+      <button class="tab-btn ${route.adminTab==='history'?'active':''}" onclick="setAdminTab('history')">Historial</button>
+    </div>
+    ${route.adminTab==='history' ? renderHistoryTab() : renderPendingTab()}
+  </main>`;
+}
+window.setAdminTab = function(t){ route.adminTab=t; render(); };
+function describePending(c){
+  if(c.kind==="editPerson") return `Editar a <strong>${personName(c.targetId)}</strong>: ${Object.entries(c.payload).map(([k,v])=>`${k}=${v}`).join(", ")}`;
+  if(c.kind==="note") return `Nueva nota para <strong>${personName(c.targetId)}</strong>: "${c.payload.text}"`;
+  if(c.kind==="newUnion") return `Nueva pareja entre <strong>${personName(c.payload.id1)}</strong> y <strong>${personName(c.payload.id2)}</strong>`;
+  if(c.kind==="newPerson" && c.payload.spouseOf) return `Nueva pareja "${c.payload.name}" para <strong>${personName(c.payload.spouseOf)}</strong>`;
+  if(c.kind==="newPerson") return `Nueva persona "${c.payload.name}" (hijo/a de ${(c.payload.parentIds||[]).map(personName).join(" y ")})`;
+  return c.kind;
+}
+function renderPendingTab(){
+  if(!pendientes.length) return '<p class="empty">No hay cambios pendientes.</p>';
+  return pendientes.map(c=>`<div class="pending-list-item">
+    <div>${describePending(c)}</div>
+    <div style="font-size:.75rem; color:var(--ink-soft); margin:.3rem 0;">Enviado por ${c.submittedBy} · ${new Date(c.submittedAt).toLocaleString()}</div>
+    <div class="row">
+      <button class="btn small" onclick="approvePending('${c.id}')">✓ Aprobar</button>
+      <button class="btn secondary small" onclick="rejectPending('${c.id}')">✕ Rechazar</button>
+    </div>
+  </div>`).join("");
+}
+function renderHistoryTab(){
+  if(!historial.length) return '<p class="empty">Sin historial todavía.</p>';
+  return historial.map(h=>`<div class="hist-item">
+    <strong>${h.status==='approved'?'✓ Aprobado':'✕ Rechazado'}</strong> — ${describePending(h)}<br>
+    <span style="color:var(--ink-soft);">Enviado por ${h.submittedBy} el ${new Date(h.submittedAt).toLocaleDateString()}, resuelto por ${h.resolvedBy}</span>
+  </div>`).join("");
+}
+window.approvePending = async function(id){
+  const c = pendientes.find(x=>x.id===id);
+  if(!c) return;
+  try{
+    if(c.kind==="editPerson"){
+      await updateDoc(doc(db, COL, c.targetId), c.payload);
+    } else if(c.kind==="note"){
+      await updateDoc(doc(db, COL, c.targetId), {notes: arrayUnion({text:c.payload.text, by:c.submittedBy, at:c.submittedAt})});
+    } else if(c.kind==="newUnion"){
+      await updateDoc(doc(db, COL, c.payload.id1), {unions: arrayUnion({spouseId:c.payload.id2, marrDate:c.payload.marrDate})});
+      await updateDoc(doc(db, COL, c.payload.id2), {unions: arrayUnion({spouseId:c.payload.id1, marrDate:c.payload.marrDate})});
+    } else if(c.kind==="newPerson"){
+      const newId = uid();
+      if(c.payload.spouseOf){
+        await setDoc(doc(db, COL, newId), {type:"persona", id:newId, name:c.payload.name, sex:null, parentIds:[], unions:[{spouseId:c.payload.spouseOf, marrDate:c.payload.marrDate}], notes:[], status:"confirmed"});
+        await updateDoc(doc(db, COL, c.payload.spouseOf), {unions: arrayUnion({spouseId:newId, marrDate:c.payload.marrDate})});
+      } else {
+        await setDoc(doc(db, COL, newId), {type:"persona", id:newId, name:c.payload.name, sex:c.payload.sex, birthDate:c.payload.birthDate, parentIds:c.payload.parentIds||[], unions:[], notes:[], status:"confirmed"});
+      }
+    }
+    await logHistory({kind:c.kind, targetId:c.targetId, payload:c.payload, submittedBy:c.submittedBy, submittedAt:c.submittedAt, resolvedBy:currentUser.name, resolvedAt:new Date().toISOString(), status:"approved"});
+    await deleteDoc(doc(db, COL, id));
+    toast("Cambio aprobado.");
+  }catch(e){ console.error(e); toast("Error al aprobar."); }
+};
+window.rejectPending = async function(id){
+  const c = pendientes.find(x=>x.id===id);
+  if(!c) return;
+  await logHistory({kind:c.kind, targetId:c.targetId, payload:c.payload, submittedBy:c.submittedBy, submittedAt:c.submittedAt, resolvedBy:currentUser.name, resolvedAt:new Date().toISOString(), status:"rejected"});
+  await deleteDoc(doc(db, COL, id));
+  toast("Cambio rechazado.");
+};
+
+// re-attach dynamic listeners after each render for screens with search inputs
+const origRender = render;
+window.__renderTick = 0;
+function renderAndAttach(){
+  origRender();
+  if(route.screen==="kinship") window.__attachKinship();
+  if(route.screen==="search") window.__attachSearch();
+}
+// override global render usage
+render = renderAndAttach;
+
+listen();
+</script>
+</body>
+</html>
