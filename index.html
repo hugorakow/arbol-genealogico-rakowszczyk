@@ -104,23 +104,35 @@
   .login-box .brand{text-align:center; margin-bottom:1.4rem;}
   .login-box .brand h1{font-size:1.9rem; justify-content:center;}
   .login-box .brand p{color:var(--ink-soft); font-size:.9rem; margin:.3rem 0 0;}
-  .hero-tree{width:120px; height:120px; margin:0 auto .5rem;}
-  .menu-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:.9rem; margin-top:1.2rem;}
+  .hero-tree{width:180px; height:180px; margin:0 auto .5rem;}
+  .menu-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:1.1rem; margin-top:1.2rem;}
   .menu-item{
     background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
-    padding:1.1rem .8rem; text-align:center; box-shadow:var(--shadow); position:relative;
+    padding:1.5rem 1rem; text-align:center; box-shadow:var(--shadow); position:relative;
     transition:transform .15s, box-shadow .15s;
   }
-  .menu-item:hover{transform:translateY(-3px); box-shadow:var(--shadow-lg);}
-  .menu-item .icon{font-size:1.8rem; display:block; margin-bottom:.5rem;}
-  .menu-item span.label{font-weight:600; font-size:.88rem;}
+  .menu-item:hover{transform:translateY(-4px) scale(1.02); box-shadow:var(--shadow-lg);}
+  .menu-item .icon-badge{
+    width:56px; height:56px; border-radius:50%; margin:0 auto .6rem; display:flex; align-items:center;
+    justify-content:center; font-size:1.8rem; background:var(--accent-soft);
+  }
+  .menu-item span.label{font-weight:700; font-size:1rem;}
   .section{margin-bottom:1.6rem;}
   .home-hero{
-    display:flex; align-items:center; gap:1.2rem; background:linear-gradient(120deg, var(--accent-soft), var(--card));
-    border:1px solid var(--border); border-radius:var(--radius); padding:1.2rem; box-shadow:var(--shadow); margin-bottom:1.2rem;
+    display:flex; align-items:center; gap:1.4rem; background:linear-gradient(120deg, var(--accent-soft), var(--card));
+    border:1px solid var(--border); border-radius:var(--radius); padding:1.4rem; box-shadow:var(--shadow); margin-bottom:1.2rem;
   }
-  .home-hero .hero-art{width:88px; height:88px; flex-shrink:0;}
+  .home-hero .hero-art{width:130px; height:130px; flex-shrink:0;}
   .home-hero h2{margin-bottom:.2rem;}
+  .home-side-card{
+    background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:1rem;
+    box-shadow:var(--shadow); flex-shrink:0; width:180px; text-align:center;
+  }
+  .home-side-card .icon-badge{width:44px;height:44px;border-radius:50%;margin:0 auto .5rem;display:flex;align-items:center;justify-content:center;font-size:1.4rem;background:var(--gold-soft);}
+  .home-side-card .num{font-family:'Lora',serif; font-weight:700; font-size:1.6rem; color:var(--accent-dark);}
+  .home-side-card .lbl{font-size:.78rem; color:var(--ink-soft);}
+  .home-row{display:flex; gap:1rem; align-items:stretch; flex-wrap:wrap;}
+  .home-row .home-hero{flex:1; min-width:280px; margin-bottom:0;}
   .tree-canvas{position:relative;}
   .tree-connector{display:flex; justify-content:center;}
   .tree-connector-line{width:2px; height:24px; background:var(--border);}
@@ -182,6 +194,27 @@
     color:#fff; padding:.6rem 1.1rem; border-radius:8px; font-size:.87rem; z-index:100; box-shadow:var(--shadow);
   }
   .footer-note{text-align:center; color:var(--ink-soft); font-size:.75rem; margin-top:2rem;}
+  /* Genogram-style tree connectors */
+  .family-block{display:flex; flex-direction:column; align-items:center; margin:0 1.1rem;}
+  .couple-unit{display:flex; align-items:stretch; position:relative;}
+  .couple-unit .person-card{border-radius:0; margin:0;}
+  .couple-unit .person-card:first-child{border-radius:var(--radius) 0 0 var(--radius);}
+  .couple-unit .person-card:last-child{border-radius:0 var(--radius) var(--radius) 0; border-left:none;}
+  .couple-unit.single .person-card{border-radius:var(--radius);}
+  .couple-link{width:14px; flex-shrink:0; position:relative; background:var(--card); border-top:1px solid var(--border); border-bottom:1px solid var(--border);}
+  .couple-link::before{content:''; position:absolute; top:50%; left:0; right:0; height:2px; background:var(--gold); transform:translateY(-50%);}
+  .drop-line{width:2px; height:22px; background:var(--border);}
+  .children-bus{position:relative; padding-top:22px;}
+  .children-bus.multi::before{content:''; position:absolute; top:0; left:calc(50%/var(--n) + 4%); right:calc(50%/var(--n) + 4%); height:2px; background:var(--border);}
+  .children-row{display:flex; gap:1.6rem; align-items:flex-start;}
+  .child-stub{display:flex; flex-direction:column; align-items:center;}
+  .child-stub .stub-line{width:2px; height:22px; background:var(--border); margin-top:-22px;}
+  .gen-title{text-align:center; font-family:'Lora',serif; font-weight:700; color:var(--accent-dark); margin:1.6rem 0 .3rem;}
+  .tree-scroll{overflow-x:auto; padding:1rem .5rem 1.5rem;}
+  .tree-inner{display:inline-flex; flex-direction:column; align-items:center; min-width:100%;}
+  .row-of-units{display:flex; gap:2rem; align-items:flex-start; justify-content:center;}
+  .highlight-flash{animation: flashHi 1.8s ease-out;}
+  @keyframes flashHi{ 0%{box-shadow:0 0 0 4px var(--gold);} 100%{box-shadow:none;} }
   @media (max-width:520px){
     .login-box{max-width:100%;}
     .home-hero{flex-direction:column; text-align:center;}
@@ -249,6 +282,15 @@ function normalize(s){
   if(!s) return "";
   return s.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();
 }
+function hasName(id){
+  const p = personas[id];
+  if(!p || !p.name) return false;
+  const n = p.name.trim();
+  if(!n) return false;
+  if(/^[¿?¡!.\s]+$/.test(n)) return false;
+  return true;
+}
+function named(ids){ return ids.filter(hasName); }
 function uid(){ return "p_" + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 const GED_MONTHS = {JAN:0,FEB:1,MAR:2,APR:3,MAY:4,JUN:5,JUL:6,AUG:7,SEP:8,OCT:9,NOV:10,DEC:11};
 function parseGedDate(str){
@@ -536,7 +578,7 @@ function render(){
   topbar.style.display="flex";
   document.getElementById("whoami").textContent = currentUser.name + (currentUser.isAdmin ? " · admin" : "");
   if(route.screen==="home") app.innerHTML = renderHome();
-  else if(route.screen==="tree") app.innerHTML = renderTree(route.centerId || currentUser.id, false);
+  else if(route.screen==="tree") app.innerHTML = renderTree(route.centerId || currentUser.id);
   else if(route.screen==="fulltree") app.innerHTML = renderAllTree();
   else if(route.screen==="kinship") app.innerHTML = renderKinship();
   else if(route.screen==="timeline") app.innerHTML = renderTimeline();
@@ -680,22 +722,43 @@ function upcomingDates(){
 function renderHome(){
   const pendingCount = pendientes.length;
   const upcoming = upcomingDates();
+  const totalPersonas = named(Object.keys(personas)).length;
+  const gen = computeGenerations();
+  const genCount = new Set(Object.values(gen)).size;
+  const withPhoto = Object.values(personas).filter(p=>p.photo).length;
   return `<main>
-    <div class="home-hero">
-      ${treeSvg("hero-art")}
-      <div style="flex:1;">
-        <h2>Hola, ${currentUser.name.split(" ")[0]}</h2>
-        ${upcoming.length ? upcoming.map(u=>`<div style="font-size:.88rem; padding:.2rem 0;">🎉 ${u.type==='cumpleaños'?'Cumpleaños':'Aniversario'} de <strong>${u.name}</strong> — ${u.diffDays===0?"¡hoy!":u.diffDays===1?"mañana":`en ${u.diffDays} días`}</div>`).join("") : '<p class="empty" style="padding:.3rem 0;">No hay cumpleaños ni aniversarios en los próximos 30 días.</p>'}
+    <div class="home-row">
+      <div class="home-hero">
+        ${treeSvg("hero-art")}
+        <div style="flex:1;">
+          <h2>Hola, ${currentUser.name.split(" ")[0]}</h2>
+          ${upcoming.length ? upcoming.map(u=>`<div style="font-size:.88rem; padding:.2rem 0;">🎉 ${u.type==='cumpleaños'?'Cumpleaños':'Aniversario'} de <strong>${u.name}</strong> — ${u.diffDays===0?"¡hoy!":u.diffDays===1?"mañana":`en ${u.diffDays} días`}</div>`).join("") : '<p class="empty" style="padding:.3rem 0;">No hay cumpleaños ni aniversarios en los próximos 30 días.</p>'}
+        </div>
+      </div>
+      <div class="home-side-card">
+        <div class="icon-badge">🌳</div>
+        <div class="num">${totalPersonas}</div>
+        <div class="lbl">personas en el árbol</div>
+      </div>
+      <div class="home-side-card">
+        <div class="icon-badge">🧬</div>
+        <div class="num">${genCount}</div>
+        <div class="lbl">generaciones registradas</div>
+      </div>
+      <div class="home-side-card">
+        <div class="icon-badge">📷</div>
+        <div class="num">${withPhoto}</div>
+        <div class="lbl">personas con foto</div>
       </div>
     </div>
     <div class="menu-grid">
-      <div class="menu-item" onclick="goTree()"><span class="icon">🌳</span><span class="label">Mi árbol</span></div>
-      <div class="menu-item" onclick="goFullTree()"><span class="icon">🗺️</span><span class="label">Árbol completo</span></div>
-      <div class="menu-item" onclick="goKinship()"><span class="icon">🔗</span><span class="label">Parentesco</span></div>
-      <div class="menu-item" onclick="goSearch()"><span class="icon">🔍</span><span class="label">Buscar persona</span></div>
-      <div class="menu-item" onclick="goTimeline()"><span class="icon">📜</span><span class="label">Línea de tiempo</span></div>
-      <div class="menu-item" onclick="goPlaces()"><span class="icon">📍</span><span class="label">Lugares</span></div>
-      ${currentUser.isAdmin ? `<div class="menu-item" onclick="goAdmin()"><span class="icon">🛡️</span><span class="label">Administrar</span>${pendingCount?`<span class="badge count" style="position:absolute; top:8px; right:8px;">${pendingCount}</span>`:""}</div>` : ""}
+      <div class="menu-item" onclick="goTree()"><div class="icon-badge">🌳</div><span class="label">Mi árbol</span></div>
+      <div class="menu-item" onclick="goFullTree()"><div class="icon-badge">🗺️</div><span class="label">Árbol completo</span></div>
+      <div class="menu-item" onclick="goKinship()"><div class="icon-badge">🔗</div><span class="label">Parentesco</span></div>
+      <div class="menu-item" onclick="goSearch()"><div class="icon-badge">🔍</div><span class="label">Buscar persona</span></div>
+      <div class="menu-item" onclick="goTimeline()"><div class="icon-badge">📜</div><span class="label">Línea de tiempo</span></div>
+      <div class="menu-item" onclick="goPlaces()"><div class="icon-badge">📍</div><span class="label">Lugares</span></div>
+      ${currentUser.isAdmin ? `<div class="menu-item" onclick="goAdmin()"><div class="icon-badge">🛡️</div><span class="label">Administrar</span>${pendingCount?`<span class="badge count" style="position:absolute; top:10px; right:10px;">${pendingCount}</span>`:""}</div>` : ""}
     </div>
     ${currentUser.isNew ? `<p class="empty" style="margin-top:1rem;">Todavía no estás vinculado al árbol. Pedile a Hugo que te conecte con tus familiares.</p>` : ""}
   </main>`;
@@ -709,13 +772,40 @@ window.goAdmin = function(){ route={screen:"admin"}; render(); };
 window.goPlaces = function(){ route={screen:"places"}; render(); };
 window.recenter = function(id){ route.centerId = id; render(); };
 
-function connector(){ return `<div class="tree-connector"><div class="tree-connector-line"></div></div>`; }
-function renderGenRow(label, ids){
+function unitHtml(id, opts){
+  opts = opts || {};
+  const spouses = named(opts.spouses || []);
+  if(!spouses.length) return `<div class="couple-unit single">${personCardHtml(id, opts)}</div>`;
+  let html = `<div class="couple-unit">${personCardHtml(id, opts)}`;
+  spouses.forEach(sid=>{ html += `<div class="couple-link"></div>${personCardHtml(sid)}`; });
+  html += `</div>`;
+  return html;
+}
+function busWrap(cellsHtml, n){
+  const busClass = n>1 ? "children-bus multi" : "children-bus";
+  const style = n>1 ? ` style="--n:${n}"` : "";
+  return `<div class="drop-line"></div><div class="${busClass}"${style}><div class="children-row">${cellsHtml}</div></div>`;
+}
+function childrenBusHtml(childIds){
+  const ids = named(childIds);
   if(!ids.length) return "";
-  return `${connector()}<div class="gen-row"><div class="gen-label">${label}</div><div class="cards-scroll">${ids.map(id=>personCardHtml(id)).join("")}</div></div>`;
+  const cells = ids.map(id=>`<div class="child-stub"><div class="stub-line"></div>${personCardHtml(id)}</div>`).join("");
+  return busWrap(cells, ids.length);
+}
+function siblingsBusWithCenter(ids, centerId, spouseIds, childIds){
+  const list = named(ids);
+  if(!list.length) return "";
+  const cells = list.map(id=>{
+    if(id===centerId){
+      const kids = named(childIds);
+      return `<div class="child-stub"><div class="stub-line"></div>${unitHtml(id,{spouses:spouseIds, center:true})}${kids.length ? childrenBusHtml(kids) : ""}</div>`;
+    }
+    return `<div class="child-stub"><div class="stub-line"></div>${personCardHtml(id)}</div>`;
+  }).join("");
+  return busWrap(cells, list.length);
 }
 
-function renderTree(centerId, full){
+function renderTree(centerId){
   const center = personas[centerId];
   if(!center && !currentUser.isNew){
     return `<main><p class="empty">Persona no encontrada.</p></main>`;
@@ -723,37 +813,28 @@ function renderTree(centerId, full){
   if(!center){
     return `<main><p class="empty">Todavía no estás vinculado al árbol familiar. Pedile a Hugo que te conecte.</p></main>`;
   }
-  const parents = getParents(centerId);
-  const grandparents = full ? Array.from(new Set(parents.flatMap(p=>getParents(p)))) : [];
-  const greatgrand = full ? Array.from(new Set(grandparents.flatMap(p=>getParents(p)))) : [];
+  const parents = named(getParents(centerId));
   const siblings = getSiblings(centerId);
   const unions = extendedSpouseUnions(centerId);
   const spouseIds = unions.map(u=>u.spouseId);
   const children = extendedChildren(centerId);
-  const grandchildren = full ? Array.from(new Set(children.flatMap(c=> c.startsWith("pend_")?[] : extendedChildren(c)))) : [];
-  const aunts = full ? Array.from(new Set(parents.flatMap(p=>getSiblings(p)))) : [];
-  const nephews = full ? Array.from(new Set(siblings.flatMap(s=>extendedChildren(s)))) : [];
 
   let html = `<main>
     <h2>🌳 Mi árbol — centrado en ${center.name}</h2>
-    <div class="tree-canvas">`;
-  if(full){
-    html += renderGenRow("Bisabuelos", greatgrand);
-    html += renderGenRow("Abuelos", grandparents);
-    html += renderGenRow("Tíos / tías", aunts);
+    <div class="tree-scroll"><div class="tree-inner">`;
+  if(parents.length){
+    html += `<div class="family-block">`;
+    html += unitHtml(parents[0], {spouses: parents.slice(1,2)});
+    const siblingsAndMe = Array.from(new Set([...named(siblings), centerId]));
+    html += siblingsBusWithCenter(siblingsAndMe, centerId, spouseIds, children);
+    html += `</div>`;
+  } else {
+    html += `<div class="family-block">`;
+    html += unitHtml(centerId, {spouses: spouseIds, center:true});
+    html += childrenBusHtml(children);
+    html += `</div>`;
   }
-  html += renderGenRow("Padres", parents);
-  html += `${connector()}<div class="gen-row"><div class="gen-label">Vos, pareja y hermanos</div><div class="cards-scroll">
-    ${siblings.map(id=>personCardHtml(id)).join("")}
-    ${personCardHtml(centerId, {center:true})}
-    ${spouseIds.map(id=>personCardHtml(id)).join("")}
-  </div></div>`;
-  html += renderGenRow("Hijos", children);
-  if(full){
-    html += renderGenRow("Sobrinos", nephews);
-    html += renderGenRow("Nietos", grandchildren);
-  }
-  html += `</div>`;
+  html += `</div></div>`;
   if(centerId !== currentUser.id){
     html += `<button class="btn secondary small" onclick="recenter('${currentUser.id}')">Volver a mi centro</button>`;
   }
@@ -791,23 +872,65 @@ function computeGenerations(){
 function renderAllTree(){
   const gen = computeGenerations();
   const byGen = {};
-  Object.keys(personas).forEach(id=>{
+  named(Object.keys(personas)).forEach(id=>{
     const g = gen[id];
     (byGen[g] = byGen[g] || []).push(id);
   });
   const gens = Object.keys(byGen).map(Number).sort((a,b)=>a-b);
   let html = `<main>
-    <h2>🗺️ Árbol completo — ${Object.keys(personas).length} personas</h2>
-    <p class="empty">Organizado por generación, de más antigua a más nueva. Tocá cualquier persona para ver su ficha.</p>
-    <div class="tree-canvas">`;
+    <h2>🗺️ Árbol completo — ${named(Object.keys(personas)).length} personas</h2>
+    <div class="card" style="margin-bottom:1rem;">
+      <label>Buscar persona en el árbol</label>
+      <div class="autocomplete-wrap">
+        <input type="text" id="alltree-search" placeholder="Escribí un nombre..." autocomplete="off">
+        <div id="alltree-suggestions"></div>
+      </div>
+    </div>
+    <div class="tree-scroll"><div class="tree-inner">`;
   gens.forEach((g,i)=>{
     const ids = byGen[g].sort((a,b)=> (personas[a].name||"").localeCompare(personas[b].name||""));
-    if(i>0) html += connector();
-    html += `<div class="gen-row"><div class="gen-label">Generación ${g+1} (${ids.length})</div><div class="cards-scroll">${ids.map(id=>personCardHtml(id)).join("")}</div></div>`;
+    const placed = new Set();
+    const cells = [];
+    ids.forEach(id=>{
+      if(placed.has(id)) return;
+      const spouseHere = getSpouseIds(id).find(sid=>ids.includes(sid) && !placed.has(sid) && hasName(sid));
+      if(spouseHere){
+        cells.push(`<div id="anchor-${id}">${unitHtml(id,{spouses:[spouseHere]})}</div>`);
+        placed.add(id); placed.add(spouseHere);
+      } else {
+        cells.push(`<div id="anchor-${id}">${personCardHtml(id)}</div>`);
+        placed.add(id);
+      }
+    });
+    html += `<div class="gen-title">Generación ${g+1} · ${ids.length} persona${ids.length===1?"":"s"}</div>`;
+    html += `<div class="cards-scroll">${cells.join("")}</div>`;
   });
-  html += `</div></main>`;
+  html += `</div></div></main>`;
   return html;
 }
+window.__attachAllTreeSearch = function(){
+  const input = document.getElementById("alltree-search");
+  if(!input) return;
+  input.addEventListener("input", ()=>{
+    const n = normalize(input.value);
+    const box = document.getElementById("alltree-suggestions");
+    if(n.length<1){ box.innerHTML=""; return; }
+    const matches = named(Object.keys(personas)).filter(id=>normalize(personas[id].name).includes(n)).slice(0,8);
+    box.className = "suggestions";
+    box.innerHTML = matches.map(id=>`<div onclick="jumpToPerson('${id}')">${personas[id].name}</div>`).join("");
+  });
+};
+window.jumpToPerson = function(id){
+  document.getElementById("alltree-suggestions").innerHTML = "";
+  document.getElementById("alltree-search").value = "";
+  const el = document.getElementById("anchor-"+id);
+  if(el){
+    el.scrollIntoView({behavior:"smooth", block:"center", inline:"center"});
+    const card = el.querySelector(".person-card") || el;
+    card.classList.add("highlight-flash");
+    setTimeout(()=>card.classList.remove("highlight-flash"), 1900);
+  }
+};
 
 window.openPerson = function(id){
   if(id.startsWith("pend_")){
@@ -834,9 +957,9 @@ function renderPersonModal(id){
   const notes = (p.notes||[]).map(n=>({...n, pending:false}));
   const pendingNotes = pendingNotesFor(id).map(c=>({text:c.payload.text, by:c.submittedBy, pending:true}));
   const allNotes = [...notes, ...pendingNotes];
-  const unions = extendedSpouseUnions(id);
-  const siblings = getSiblings(id);
-  const parents = getParents(id);
+  const unions = extendedSpouseUnions(id).filter(u=>u.spouseId.startsWith("pend_") || hasName(u.spouseId));
+  const siblings = named(getSiblings(id));
+  const parents = named(getParents(id));
   const deathDate = p.__pending_deathDate || p.deathDate;
   const deathPending = !!p.__pending_deathDate;
 
@@ -866,6 +989,7 @@ function renderPersonModal(id){
     ${allNotes.length ? allNotes.map(n=>`<div class="note-item ${n.pending?'pending':''}">${n.text} ${n.pending?'<span class="badge">Pendiente</span>':""}</div>`).join("") : '<p class="empty">Sin notas todavía.</p>'}
     <div class="row" style="margin-top:1rem;">
       <button class="btn small" onclick="openForm('uploadPhoto','${id}')">＋ Foto</button>
+      <button class="btn secondary small" onclick="openForm('editAny','${id}')">✎ Editar datos</button>
       <button class="btn small" onclick="openForm('addNote','${id}')">＋ Info adicional</button>
       <button class="btn small" onclick="openForm('editDeath','${id}')">＋ Fallecimiento</button>
       <button class="btn small" onclick="openForm('addSpouse','${id}')">＋ Pareja</button>
@@ -887,7 +1011,7 @@ window.openForm = function(type, targetId){
 function renderForm(){
   const type = route.formType, targetId = route.formTarget;
   const p = personas[targetId];
-  const titleMap = {addNote:"Agregar información", editDeath:"Registrar fallecimiento", addSpouse:"Agregar pareja", addChild:"Agregar hijo/a", addResidence:"Agregar residencia", uploadPhoto:"Subir foto"};
+  const titleMap = {addNote:"Agregar información", editDeath:"Registrar fallecimiento", addSpouse:"Agregar pareja", addChild:"Agregar hijo/a", addResidence:"Agregar residencia", uploadPhoto:"Subir foto", editAny:"Editar datos"};
   let body = "";
   if(type==="addNote"){
     body = `<label>Texto</label><textarea id="f-note" rows="3" placeholder="Contá algo sobre ${p?p.name:''}..."></textarea>`;
@@ -900,6 +1024,16 @@ function renderForm(){
   } else if(type==="uploadPhoto"){
     body = storage ? `<label>Elegí una foto</label><input type="file" id="f-photo-file" accept="image/*">`
                    : `<p class="empty">La subida de fotos todavía no está activada — hace falta habilitar Firebase Storage en la consola.</p>`;
+  } else if(type==="editAny"){
+    body = `<label>Nombre completo</label><input type="text" id="f-edit-name" value="${(p?.name||'').replace(/"/g,'&quot;')}">
+      <div class="row">
+        <div><label>Fecha de nacimiento</label><input type="text" id="f-edit-birthdate" value="${p?.birthDate||''}" placeholder="ej: 3 MAY 1980"></div>
+        <div><label>Lugar de nacimiento</label><input type="text" id="f-edit-birthplace" value="${p?.birthPlace||''}" placeholder="ej: Buenos Aires, Argentina"></div>
+      </div>
+      <div class="row">
+        <div><label>Fecha de fallecimiento</label><input type="text" id="f-edit-deathdate" value="${p?.deathDate||''}" placeholder="ej: 15 MAR 2020"></div>
+        <div><label>Lugar de fallecimiento</label><input type="text" id="f-edit-deathplace" value="${p?.deathPlace||''}" placeholder="ej: Córdoba, Argentina"></div>
+      </div>`;
   } else if(type==="addSpouse"){
     body = `<label>Nombre de la pareja</label>
       <div class="autocomplete-wrap">
@@ -1038,6 +1172,21 @@ window.submitForm = async function(){
         await addPending("editPerson", targetId, payload);
       }
       toast(isAdmin ? "Foto actualizada." : "Foto enviada para aprobación.");
+    } else if(type==="editAny"){
+      const name = document.getElementById("f-edit-name").value.trim();
+      const birthDate = document.getElementById("f-edit-birthdate").value.trim();
+      const birthPlace = document.getElementById("f-edit-birthplace").value.trim();
+      const deathDate = document.getElementById("f-edit-deathdate").value.trim();
+      const deathPlace = document.getElementById("f-edit-deathplace").value.trim();
+      if(!name) return;
+      const payload = {name, birthDate: birthDate||null, birthPlace: birthPlace||null, deathDate: deathDate||null, deathPlace: deathPlace||null, deceased: !!deathDate};
+      if(isAdmin){
+        await updateDoc(doc(db, COL, targetId), payload);
+        await logHistory({kind:"editPerson", targetId, payload, submittedBy:currentUser.name, submittedAt:new Date().toISOString(), resolvedBy:currentUser.name, resolvedAt:new Date().toISOString(), status:"approved"});
+      } else {
+        await addPending("editPerson", targetId, payload);
+      }
+      toast(isAdmin ? "Datos actualizados." : "Corrección enviada para aprobación.");
     } else if(type==="addSpouse"){
       const name = document.getElementById("f-spouse-name").value.trim();
       const existingId = document.getElementById("f-spouse-id").value;
@@ -1184,22 +1333,36 @@ window.__attachSearch = function(){
 
 // ---------- Places ----------
 function renderPlaces(){
-  const groups = {};
-  Object.values(personas).forEach(p=>{
+  const countries = {};
+  named(Object.keys(personas)).forEach(id=>{
+    const p = personas[id];
     const residences = (p.residences && p.residences.length) ? p.residences.map(r=>r.place) : (p.residence ? [p.residence] : []);
     const places = residences.length ? residences : (p.birthPlace ? [p.birthPlace] : []);
     places.forEach(place=>{
       if(!place) return;
-      if(!groups[place]) groups[place] = [];
-      groups[place].push(p.name);
+      const parts = place.split(",").map(s=>s.trim()).filter(Boolean);
+      const country = parts.length ? parts[parts.length-1] : place;
+      const city = parts.length>1 ? parts.slice(0,-1).join(", ") : "Sin ciudad especificada";
+      countries[country] = countries[country] || {};
+      countries[country][city] = countries[country][city] || new Set();
+      countries[country][city].add(p.name);
     });
   });
-  const keys = Object.keys(groups).sort();
-  return `<main>
-    <h2>📍 Lugares</h2>
-    <p class="empty">Vista simple por lugar (residencias, o lugar de nacimiento si no hay residencia cargada) — un mapa geográfico interactivo puede sumarse más adelante.</p>
-    ${keys.map(k=>`<div class="place-group card" style="margin-bottom:.8rem;"><h3>${k}</h3>${groups[k].join(", ")}</div>`).join("") || '<p class="empty">Todavía no hay lugares cargados.</p>'}
-  </main>`;
+  const countryKeys = Object.keys(countries).sort();
+  let html = `<main><h2>📍 Lugares</h2>
+    <p class="empty">Agrupado por país y ciudad — a partir de residencias, o lugar de nacimiento si no hay residencia cargada.</p>`;
+  countryKeys.forEach(country=>{
+    const cities = countries[country];
+    const cityKeys = Object.keys(cities).sort();
+    html += `<div class="card" style="margin-bottom:1rem;"><h3 style="color:var(--accent-dark); font-size:1.1rem;">🌍 ${country}</h3>`;
+    cityKeys.forEach(city=>{
+      html += `<div class="place-group"><h3>${city}</h3><div style="font-size:.88rem;">${Array.from(cities[city]).join(", ")}</div></div>`;
+    });
+    html += `</div>`;
+  });
+  if(!countryKeys.length) html += '<p class="empty">Todavía no hay lugares cargados.</p>';
+  html += `</main>`;
+  return html;
 }
 
 // ---------- Admin ----------
@@ -1286,6 +1449,7 @@ function renderAndAttach(){
   origRender();
   if(route.screen==="kinship") window.__attachKinship();
   if(route.screen==="search") window.__attachSearch();
+  if(route.screen==="fulltree") window.__attachAllTreeSearch();
 }
 // override global render usage
 render = renderAndAttach;
