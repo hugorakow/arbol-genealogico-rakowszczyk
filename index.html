@@ -194,7 +194,7 @@
   .family-block{display:flex; flex-direction:column; align-items:center; margin:0 1.1rem;}
   .couple-unit{display:flex; align-items:center; position:relative;}
   .couple-unit .person-card{border-radius:var(--radius); margin:0;}
-  .couple-link{width:44px; height:var(--line-width); background:var(--line-color); flex-shrink:0;}
+  .couple-link{width:44px; height:var(--line-width); background:transparent; flex-shrink:0;}
   .drop-line{width:var(--line-width); height:22px; background:transparent; margin:0 auto;}
   .children-bus{position:relative; padding-top:22px;}
   .children-bus.multi::before{content:none;}
@@ -551,7 +551,7 @@ function personCardHtml(id, opts){
   if(!p) return "";
   const pendingBadge = p.isPendingGhost ? '<span class="badge">Pendiente</span>' : "";
   const cls = "person-card" + (opts.center ? " center":"") + (p.isPendingGhost ? " pending":"");
-  return `<div class="${cls}" onclick="openPerson('${id}')">
+  return `<div class="${cls}" id="card-${id}" onclick="openPerson('${id}')">
     ${avatarHtml(p)}
     <div class="pname">${p.name || "(sin nombre)"}</div>
     <div class="pdates">${p.isPendingGhost ? "" : lifespan(p)}</div>
@@ -685,9 +685,19 @@ window.confirmAdminPassword = async function(){
 window.goHome = function(){ route = {screen:"home"}; render(); };
 window.logout = function(){ currentUser=null; route={screen:"login"}; render(); };
 
+function getHiddenBirthdays(){
+  try{ return JSON.parse(localStorage.getItem("hiddenBirthdays")||"[]"); }catch(e){ return []; }
+}
+window.hideBirthdayItem = function(key){
+  const list = getHiddenBirthdays();
+  if(!list.includes(key)) list.push(key);
+  try{ localStorage.setItem("hiddenBirthdays", JSON.stringify(list)); }catch(e){}
+  render();
+};
 function upcomingDates(){
   const today = new Date();
   const items = [];
+  const hidden = getHiddenBirthdays();
   Object.values(personas).forEach(p=>{
     if(p.deceased) return;
     const pd = parseGedDate(p.birthDate);
@@ -695,7 +705,7 @@ function upcomingDates(){
       let next = new Date(today.getFullYear(), pd.month, pd.hasDay?pd.day:1);
       if(next < today) next = new Date(today.getFullYear()+1, pd.month, pd.hasDay?pd.day:1);
       const diffDays = Math.round((next-today)/86400000);
-      if(diffDays<=30) items.push({type:"cumpleaños", name:p.name, date:next, diffDays});
+      if(diffDays<=30 && !hidden.includes(p.id)) items.push({type:"cumpleaños", name:p.name, date:next, diffDays, key:p.id});
     }
   });
   Object.values(personas).forEach(p=>{
@@ -706,7 +716,8 @@ function upcomingDates(){
         let next = new Date(today.getFullYear(), md.month, md.hasDay?md.day:1);
         if(next < today) next = new Date(today.getFullYear()+1, md.month, md.hasDay?md.day:1);
         const diffDays = Math.round((next-today)/86400000);
-        if(diffDays<=30) items.push({type:"aniversario", name:p.name+" y "+personas[u.spouseId].name, date:next, diffDays});
+        const key = p.id+"_"+u.spouseId;
+        if(diffDays<=30 && !hidden.includes(key)) items.push({type:"aniversario", name:p.name+" y "+personas[u.spouseId].name, date:next, diffDays, key});
       }
     });
   });
@@ -722,7 +733,7 @@ function renderHome(){
       ${treeSvg("hero-art")}
       <div style="flex:1;">
         <h2>Hola, ${currentUser.name.split(" ")[0]}</h2>
-        ${upcoming.length ? upcoming.map(u=>`<div style="font-size:.88rem; padding:.2rem 0;">🎉 ${u.type==='cumpleaños'?'Cumpleaños':'Aniversario'} de <strong>${u.name}</strong> — ${u.diffDays===0?"¡hoy!":u.diffDays===1?"mañana":`en ${u.diffDays} días`}</div>`).join("") : '<p class="empty" style="padding:.3rem 0;">No hay cumpleaños ni aniversarios en los próximos 30 días.</p>'}
+        ${upcoming.length ? upcoming.map(u=>`<div style="font-size:.88rem; padding:.2rem 0; display:flex; justify-content:space-between; align-items:center; gap:.5rem;"><span>🎉 ${u.type==='cumpleaños'?'Cumpleaños':'Aniversario'} de <strong>${u.name}</strong> — ${u.diffDays===0?"¡hoy!":u.diffDays===1?"mañana":`en ${u.diffDays} días`}</span><span onclick="hideBirthdayItem('${u.key}')" style="cursor:pointer; color:var(--ink-soft); font-size:.75rem; flex-shrink:0;" title="Ocultar">✕ ocultar</span></div>`).join("") : '<p class="empty" style="padding:.3rem 0;">No hay cumpleaños ni aniversarios en los próximos 30 días.</p>'}
       </div>
     </div>
     <div class="menu-grid">
@@ -893,6 +904,43 @@ function drawConnectors(){
     container.style.position = "relative";
     const rect = container.getBoundingClientRect();
     const pathParts = [];
+    container.querySelectorAll(".couple-link").forEach(link=>{
+      const leftCard = link.previousElementSibling;
+      const rightCard = link.nextElementSibling;
+      if(!leftCard || !rightCard) return;
+      const lr = leftCard.getBoundingClientRect();
+      const rr = rightCard.getBoundingClientRect();
+      const y = lr.top + lr.height/2 - rect.top;
+      const x1 = lr.right - rect.left;
+      const x2 = rr.left - rect.left;
+      pathParts.push(`M ${x1} ${y} L ${x2} ${y}`);
+    });
+    if(route.screen === "fulltree"){
+      named(Object.keys(personas)).forEach(childId=>{
+        const childCard = document.getElementById("card-"+childId);
+        if(!childCard) return;
+        const parents = named(getParents(childId));
+        if(!parents.length) return;
+        const parentCards = parents.map(pid=>document.getElementById("card-"+pid)).filter(Boolean);
+        if(!parentCards.length) return;
+        const childRect = childCard.getBoundingClientRect();
+        const childX = childRect.left + childRect.width/2 - rect.left;
+        const childTopY = childRect.top - rect.top;
+        let parentX, parentBottomY;
+        if(parentCards.length === 2){
+          const r1 = parentCards[0].getBoundingClientRect();
+          const r2 = parentCards[1].getBoundingClientRect();
+          parentX = ((r1.left+r1.right)/2 + (r2.left+r2.right)/2)/2 - rect.left;
+          parentBottomY = Math.max(r1.bottom, r2.bottom) - rect.top;
+        } else {
+          const r1 = parentCards[0].getBoundingClientRect();
+          parentX = r1.left + r1.width/2 - rect.left;
+          parentBottomY = r1.bottom - rect.top;
+        }
+        const midY = (parentBottomY + childTopY) / 2;
+        pathParts.push(`M ${parentX} ${parentBottomY} L ${parentX} ${midY} L ${childX} ${midY} L ${childX} ${childTopY}`);
+      });
+    }
     container.querySelectorAll(".children-bus").forEach(bus=>{
       const dropLine = bus.previousElementSibling;
       if(!dropLine || !dropLine.classList.contains("drop-line")) return;
@@ -1100,13 +1148,13 @@ function renderForm(){
       <input type="hidden" id="f-otherparent-id" value="">`;
   }
   setTimeout(()=>attachFormAutocomplete(type), 0);
-  const willBePending = !currentUser.isAdmin;
+  const willBePending = !currentUser.isAdmin && type!=="uploadPhoto";
   const disableSubmit = type==="uploadPhoto" && !storage;
   return `<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal">
     <button class="modal-close" onclick="closeModal()">×</button>
     <h2>${titleMap[type]}</h2>
     ${body}
-    ${!disableSubmit ? (willBePending ? '<p class="empty" style="margin-top:.6rem;">Este cambio quedará pendiente de aprobación por Hugo.</p>' : '<p class="empty" style="margin-top:.6rem;">Como administrador, este cambio se aplica directamente.</p>') : ""}
+    ${!disableSubmit ? (willBePending ? '<p class="empty" style="margin-top:.6rem;">Este cambio quedará pendiente de aprobación por Hugo.</p>' : (type==="uploadPhoto" ? '<p class="empty" style="margin-top:.6rem;">Las fotos se aplican directo, sin aprobación.</p>' : '<p class="empty" style="margin-top:.6rem;">Como administrador, este cambio se aplica directamente.</p>')) : ""}
     <div class="row" style="margin-top:1rem;">
       <button class="btn" onclick="submitForm()" ${disableSubmit?"disabled":""}>Guardar</button>
       <button class="btn secondary" onclick="closeModal()">Cancelar</button>
@@ -1211,12 +1259,8 @@ window.submitForm = async function(){
       await uploadBytes(sref, file);
       const url = await getDownloadURL(sref);
       const payload = {photo:url};
-      if(isAdmin){
-        await updateDoc(doc(db, COL, targetId), payload);
-        await logHistory({kind:"editPerson", targetId, payload:{photo:"(nueva foto)"}, submittedBy:currentUser.name, submittedAt:new Date().toISOString(), resolvedBy:currentUser.name, resolvedAt:new Date().toISOString(), status:"approved"});
-      } else {
-        await addPending("editPerson", targetId, payload);
-      }
+      await updateDoc(doc(db, COL, targetId), payload);
+      await logHistory({kind:"editPerson", targetId, payload:{photo:"(nueva foto)"}, submittedBy:currentUser.name, submittedAt:new Date().toISOString(), resolvedBy:currentUser.name, resolvedAt:new Date().toISOString(), status:"approved"});
       toast(isAdmin ? "Foto actualizada." : "Foto enviada para aprobación.");
     } else if(type==="editAny"){
       const name = document.getElementById("f-edit-name").value.trim();
