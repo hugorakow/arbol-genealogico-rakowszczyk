@@ -9,26 +9,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#F3EEE3; --bg-alt:#EAE3D2; --card:#FFFDF9; --ink:#2A2118; --ink-soft:#5C5445;
-    --accent:#4F5F45; --accent-dark:#3A4834; --accent-soft:#DDE3D3;
-    --gold:#8C6B3F; --gold-soft:#EFE2C6; --pending:#C4732A; --pending-bg:#FBEADA; --pending-border:#E0A25C;
-    --border:#DBD2BC; --danger:#A6432E; --shadow: 0 2px 10px rgba(42,33,24,0.08);
-    --shadow-lg: 0 8px 28px rgba(42,33,24,0.14);
+    --bg:#0A0A0A; --bg-alt:#161410; --card:#151310; --ink:#E7C766; --ink-soft:#B79A4C;
+    --accent:#D4AF37; --accent-dark:#B8942C; --accent-soft:#2A2410;
+    --gold:#E7C766; --gold-soft:#2A2410; --pending:#D98F3A; --pending-bg:#2E2312; --pending-border:#B8792E;
+    --border:#4A3F1F; --danger:#D9614A; --shadow: 0 2px 10px rgba(0,0,0,0.5);
+    --shadow-lg: 0 10px 32px rgba(0,0,0,0.6);
+    --line-color:#FFFFFF; --line-width:4px;
+    --male:#8FCDEF; --female:#F0A8C4;
     --radius: 12px;
   }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --bg:#1E2621; --bg-alt:#232C26; --card:#26302A; --ink:#EDE7D9; --ink-soft:#B9B2A0;
-      --accent:#9BB98A; --accent-dark:#7FA06D; --accent-soft:#33402F;
-      --gold:#CBA96A; --gold-soft:#3A331F; --pending:#E0A25C; --pending-bg:#3A2E1E; --pending-border:#8C6231;
-      --border:#3A4339; --danger:#D97A65; --shadow: 0 2px 10px rgba(0,0,0,0.3); --shadow-lg: 0 10px 32px rgba(0,0,0,0.4);
-    }
-  }
-  :root[data-theme="dark"]{
-    --bg:#1E2621; --bg-alt:#232C26; --card:#26302A; --ink:#EDE7D9; --ink-soft:#B9B2A0;
-    --accent:#9BB98A; --accent-dark:#7FA06D; --accent-soft:#33402F;
-    --gold:#CBA96A; --gold-soft:#3A331F; --pending:#E0A25C; --pending-bg:#3A2E1E; --pending-border:#8C6231;
-    --border:#3A4339; --danger:#D97A65; --shadow: 0 2px 10px rgba(0,0,0,0.3); --shadow-lg: 0 10px 32px rgba(0,0,0,0.4);
+  :root[data-theme="light"]{
+    --bg:#0A0A0A; --bg-alt:#161410; --card:#151310; --ink:#E7C766; --ink-soft:#B79A4C;
+    --accent:#D4AF37; --accent-dark:#B8942C; --accent-soft:#2A2410;
+    --gold:#E7C766; --gold-soft:#2A2410; --pending:#D98F3A; --pending-bg:#2E2312; --pending-border:#B8792E;
+    --border:#4A3F1F; --danger:#D9614A; --shadow: 0 2px 10px rgba(0,0,0,0.5); --shadow-lg: 0 10px 32px rgba(0,0,0,0.6);
   }
   *{box-sizing:border-box;}
   body{
@@ -122,7 +116,7 @@
     display:flex; align-items:center; gap:1.4rem; background:linear-gradient(120deg, var(--accent-soft), var(--card));
     border:1px solid var(--border); border-radius:var(--radius); padding:1.4rem; box-shadow:var(--shadow); margin-bottom:1.2rem;
   }
-  .home-hero .hero-art{width:130px; height:130px; flex-shrink:0;}
+  .home-hero .hero-art{width:190px; height:190px; flex-shrink:0;}
   .home-hero h2{margin-bottom:.2rem;}
   .home-side-card{
     background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:1rem;
@@ -153,6 +147,8 @@
   }
   .avatar img{width:100%; height:100%; object-fit:cover;}
   .avatar.large{width:96px; height:96px; font-size:2rem;}
+  .avatar.male{background:var(--male); color:#0A3049;}
+  .avatar.female{background:var(--female); color:#5A1330;}
   .person-card .pname{font-size:.82rem; font-weight:600; line-height:1.2;}
   .person-card .pdates{font-size:.72rem; color:var(--ink-soft); margin-top:.2rem;}
   .modal-overlay{
@@ -202,13 +198,13 @@
   .couple-unit .person-card:last-child{border-radius:0 var(--radius) var(--radius) 0; border-left:none;}
   .couple-unit.single .person-card{border-radius:var(--radius);}
   .couple-link{width:14px; flex-shrink:0; position:relative; background:var(--card); border-top:1px solid var(--border); border-bottom:1px solid var(--border);}
-  .couple-link::before{content:''; position:absolute; top:50%; left:0; right:0; height:2px; background:var(--gold); transform:translateY(-50%);}
-  .drop-line{width:2px; height:22px; background:var(--border);}
+  .couple-link::before{content:''; position:absolute; top:50%; left:0; right:0; height:var(--line-width); background:var(--line-color); transform:translateY(-50%);}
+  .drop-line{width:var(--line-width); height:22px; background:var(--line-color); margin:0 auto;}
   .children-bus{position:relative; padding-top:22px;}
-  .children-bus.multi::before{content:''; position:absolute; top:0; left:calc(50%/var(--n) + 4%); right:calc(50%/var(--n) + 4%); height:2px; background:var(--border);}
+  .children-bus.multi::before{content:''; position:absolute; top:0; left:calc(50%/var(--n) + 4%); right:calc(50%/var(--n) + 4%); height:var(--line-width); background:var(--line-color);}
   .children-row{display:flex; gap:1.6rem; align-items:flex-start;}
-  .child-stub{display:flex; flex-direction:column; align-items:center;}
-  .child-stub .stub-line{width:2px; height:22px; background:var(--border); margin-top:-22px;}
+  .child-stub{position:relative; padding-top:22px;}
+  .child-stub .stub-line{position:absolute; top:0; left:66px; width:var(--line-width); height:22px; background:var(--line-color); transform:translateX(calc(var(--line-width) / -2));}
   .gen-title{text-align:center; font-family:'Lora',serif; font-weight:700; color:var(--accent-dark); margin:1.6rem 0 .3rem;}
   .tree-scroll{overflow-x:auto; padding:1rem .5rem 1.5rem;}
   .tree-inner{display:inline-flex; flex-direction:column; align-items:center; min-width:100%;}
@@ -526,8 +522,9 @@ function initials(name){
   return ((parts[0]?.[0]||"") + (parts[1]?.[0]||"")).toUpperCase();
 }
 function avatarHtml(p){
-  if(p && p.photo) return `<div class="avatar"><img src="${p.photo}" alt=""></div>`;
-  return `<div class="avatar">${initials(p ? p.name : "?")}</div>`;
+  const genderClass = p && p.sex==="M" ? " male" : (p && p.sex==="F" ? " female" : "");
+  if(p && p.photo) return `<div class="avatar${genderClass}"><img src="${p.photo}" alt=""></div>`;
+  return `<div class="avatar${genderClass}">${initials(p ? p.name : "?")}</div>`;
 }
 function dateShort(d){
   if(!d) return "";
@@ -722,33 +719,12 @@ function upcomingDates(){
 function renderHome(){
   const pendingCount = pendientes.length;
   const upcoming = upcomingDates();
-  const totalPersonas = named(Object.keys(personas)).length;
-  const gen = computeGenerations();
-  const genCount = new Set(Object.values(gen)).size;
-  const withPhoto = Object.values(personas).filter(p=>p.photo).length;
   return `<main>
-    <div class="home-row">
-      <div class="home-hero">
-        ${treeSvg("hero-art")}
-        <div style="flex:1;">
-          <h2>Hola, ${currentUser.name.split(" ")[0]}</h2>
-          ${upcoming.length ? upcoming.map(u=>`<div style="font-size:.88rem; padding:.2rem 0;">🎉 ${u.type==='cumpleaños'?'Cumpleaños':'Aniversario'} de <strong>${u.name}</strong> — ${u.diffDays===0?"¡hoy!":u.diffDays===1?"mañana":`en ${u.diffDays} días`}</div>`).join("") : '<p class="empty" style="padding:.3rem 0;">No hay cumpleaños ni aniversarios en los próximos 30 días.</p>'}
-        </div>
-      </div>
-      <div class="home-side-card">
-        <div class="icon-badge">🌳</div>
-        <div class="num">${totalPersonas}</div>
-        <div class="lbl">personas en el árbol</div>
-      </div>
-      <div class="home-side-card">
-        <div class="icon-badge">🧬</div>
-        <div class="num">${genCount}</div>
-        <div class="lbl">generaciones registradas</div>
-      </div>
-      <div class="home-side-card">
-        <div class="icon-badge">📷</div>
-        <div class="num">${withPhoto}</div>
-        <div class="lbl">personas con foto</div>
+    <div class="home-hero">
+      ${treeSvg("hero-art")}
+      <div style="flex:1;">
+        <h2>Hola, ${currentUser.name.split(" ")[0]}</h2>
+        ${upcoming.length ? upcoming.map(u=>`<div style="font-size:.88rem; padding:.2rem 0;">🎉 ${u.type==='cumpleaños'?'Cumpleaños':'Aniversario'} de <strong>${u.name}</strong> — ${u.diffDays===0?"¡hoy!":u.diffDays===1?"mañana":`en ${u.diffDays} días`}</div>`).join("") : '<p class="empty" style="padding:.3rem 0;">No hay cumpleaños ni aniversarios en los próximos 30 días.</p>'}
       </div>
     </div>
     <div class="menu-grid">
@@ -796,11 +772,15 @@ function siblingsBusWithCenter(ids, centerId, spouseIds, childIds){
   const list = named(ids);
   if(!list.length) return "";
   const cells = list.map(id=>{
-    if(id===centerId){
-      const kids = named(childIds);
-      return `<div class="child-stub"><div class="stub-line"></div>${unitHtml(id,{spouses:spouseIds, center:true})}${kids.length ? childrenBusHtml(kids) : ""}</div>`;
-    }
-    return `<div class="child-stub"><div class="stub-line"></div>${personCardHtml(id)}</div>`;
+    const isCenter = id===centerId;
+    const theirSpouses = isCenter ? spouseIds : getSpouseIds(id);
+    const theirKids = isCenter ? childIds : extendedChildren(id);
+    const kids = named(theirKids);
+    return `<div class="child-stub">
+      <div class="stub-line"></div>
+      ${unitHtml(id,{spouses:theirSpouses, center:isCenter})}
+      ${kids.length ? childrenBusHtml(kids) : ""}
+    </div>`;
   }).join("");
   return busWrap(cells, list.length);
 }
@@ -972,7 +952,7 @@ function renderPersonModal(id){
   return `<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal">
     <button class="modal-close" onclick="closeModal()">×</button>
     <div style="text-align:center;">
-      ${p.photo ? `<div class="avatar large" style="margin:0 auto;"><img src="${p.photo}"></div>` : `<div class="avatar large" style="margin:0 auto;">${initials(p.name)}</div>`}
+      ${p.photo ? `<div class="avatar large${p.sex==='M'?' male':p.sex==='F'?' female':''}" style="margin:0 auto;"><img src="${p.photo}"></div>` : `<div class="avatar large${p.sex==='M'?' male':p.sex==='F'?' female':''}" style="margin:0 auto;">${initials(p.name)}</div>`}
       <h2 style="margin-top:.5rem; justify-content:center;">${p.name}</h2>
     </div>
     <div class="kv"><span class="k">Nacimiento</span><span class="v">${p.birthDate||"—"} ${p.birthPlace?("· "+p.birthPlace):""}</span></div>
@@ -983,7 +963,8 @@ function renderPersonModal(id){
     <div class="kv"><span class="k">Pareja(s)</span><span class="v">${unions.length ? unions.map(u=>{
         const sp = resolveDisplayPerson(u.spouseId);
         const nameHtml = sp && !sp.isPendingGhost ? linkName(u.spouseId) : (sp?sp.name:"?");
-        return nameHtml + (u.marrDate?` (casados: ${u.marrDate})`:"") + (u.pending?' <span class="badge">Pendiente</span>':"");
+        const dateInfo = [u.marrDate?`casados: ${u.marrDate}`:null, u.endDate?`separados: ${u.endDate}`:null].filter(Boolean).join(" · ");
+        return nameHtml + (dateInfo?` (${dateInfo})`:"") + (u.pending?' <span class="badge">Pendiente</span>':"");
       }).join("; ") : "—"}</span></div>
     <h3 style="margin-top:1rem;">Notas / historias</h3>
     ${allNotes.length ? allNotes.map(n=>`<div class="note-item ${n.pending?'pending':''}">${n.text} ${n.pending?'<span class="badge">Pendiente</span>':""}</div>`).join("") : '<p class="empty">Sin notas todavía.</p>'}
@@ -1041,7 +1022,8 @@ function renderForm(){
         <div id="f-spouse-suggestions"></div>
       </div>
       <input type="hidden" id="f-spouse-id" value="">
-      <label>Fecha de casamiento (opcional)</label><input type="text" id="f-marrdate" placeholder="ej: 20 NOV 2010">`;
+      <label>Fecha de casamiento (opcional)</label><input type="text" id="f-marrdate" placeholder="ej: 20 NOV 2010">
+      <label>Fecha de finalización (opcional — separación / divorcio)</label><input type="text" id="f-marrenddate" placeholder="ej: 15 JUN 2018">`;
   } else if(type==="addChild"){
     body = `<label>Nombre del hijo/a</label><input type="text" id="f-child-name" placeholder="Nombre completo">
       <label>Sexo</label><select id="f-child-sex"><option value="M">Masculino</option><option value="F">Femenino</option></select>
@@ -1191,22 +1173,23 @@ window.submitForm = async function(){
       const name = document.getElementById("f-spouse-name").value.trim();
       const existingId = document.getElementById("f-spouse-id").value;
       const marrDate = document.getElementById("f-marrdate").value.trim() || null;
+      const endDate = document.getElementById("f-marrenddate").value.trim() || null;
       if(!name) return;
       if(existingId){
-        const payload = {id1: targetId, id2: existingId, marrDate};
+        const payload = {id1: targetId, id2: existingId, marrDate, endDate};
         if(isAdmin){
-          await updateDoc(doc(db, COL, targetId), {unions: arrayUnion({spouseId:existingId, marrDate})});
-          await updateDoc(doc(db, COL, existingId), {unions: arrayUnion({spouseId:targetId, marrDate})});
+          await updateDoc(doc(db, COL, targetId), {unions: arrayUnion({spouseId:existingId, marrDate, endDate})});
+          await updateDoc(doc(db, COL, existingId), {unions: arrayUnion({spouseId:targetId, marrDate, endDate})});
           await logHistory({kind:"newUnion", payload, submittedBy:currentUser.name, submittedAt:new Date().toISOString(), resolvedBy:currentUser.name, resolvedAt:new Date().toISOString(), status:"approved"});
         } else {
           await addPending("newUnion", null, payload);
         }
       } else {
-        const payload = {name, spouseOf: targetId, marrDate};
+        const payload = {name, spouseOf: targetId, marrDate, endDate};
         if(isAdmin){
           const newId = uid();
-          await setDoc(doc(db, COL, newId), {type:"persona", id:newId, name, sex:null, parentIds:[], unions:[{spouseId:targetId, marrDate}], notes:[], status:"confirmed"});
-          await updateDoc(doc(db, COL, targetId), {unions: arrayUnion({spouseId:newId, marrDate})});
+          await setDoc(doc(db, COL, newId), {type:"persona", id:newId, name, sex:null, parentIds:[], unions:[{spouseId:targetId, marrDate, endDate}], notes:[], status:"confirmed"});
+          await updateDoc(doc(db, COL, targetId), {unions: arrayUnion({spouseId:newId, marrDate, endDate})});
           await logHistory({kind:"newPerson", payload, submittedBy:currentUser.name, submittedAt:new Date().toISOString(), resolvedBy:currentUser.name, resolvedAt:new Date().toISOString(), status:"approved"});
         } else {
           await addPending("newPerson", null, payload);
@@ -1418,13 +1401,13 @@ window.approvePending = async function(id){
     } else if(c.kind==="note"){
       await updateDoc(doc(db, COL, c.targetId), {notes: arrayUnion({text:c.payload.text, by:c.submittedBy, at:c.submittedAt})});
     } else if(c.kind==="newUnion"){
-      await updateDoc(doc(db, COL, c.payload.id1), {unions: arrayUnion({spouseId:c.payload.id2, marrDate:c.payload.marrDate})});
-      await updateDoc(doc(db, COL, c.payload.id2), {unions: arrayUnion({spouseId:c.payload.id1, marrDate:c.payload.marrDate})});
+      await updateDoc(doc(db, COL, c.payload.id1), {unions: arrayUnion({spouseId:c.payload.id2, marrDate:c.payload.marrDate, endDate:c.payload.endDate||null})});
+      await updateDoc(doc(db, COL, c.payload.id2), {unions: arrayUnion({spouseId:c.payload.id1, marrDate:c.payload.marrDate, endDate:c.payload.endDate||null})});
     } else if(c.kind==="newPerson"){
       const newId = uid();
       if(c.payload.spouseOf){
-        await setDoc(doc(db, COL, newId), {type:"persona", id:newId, name:c.payload.name, sex:null, parentIds:[], unions:[{spouseId:c.payload.spouseOf, marrDate:c.payload.marrDate}], notes:[], status:"confirmed"});
-        await updateDoc(doc(db, COL, c.payload.spouseOf), {unions: arrayUnion({spouseId:newId, marrDate:c.payload.marrDate})});
+        await setDoc(doc(db, COL, newId), {type:"persona", id:newId, name:c.payload.name, sex:null, parentIds:[], unions:[{spouseId:c.payload.spouseOf, marrDate:c.payload.marrDate, endDate:c.payload.endDate||null}], notes:[], status:"confirmed"});
+        await updateDoc(doc(db, COL, c.payload.spouseOf), {unions: arrayUnion({spouseId:newId, marrDate:c.payload.marrDate, endDate:c.payload.endDate||null})});
       } else {
         await setDoc(doc(db, COL, newId), {type:"persona", id:newId, name:c.payload.name, sex:c.payload.sex, birthDate:c.payload.birthDate, parentIds:c.payload.parentIds||[], unions:[], notes:[], status:"confirmed"});
       }
