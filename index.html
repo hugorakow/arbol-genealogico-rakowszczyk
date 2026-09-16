@@ -41,7 +41,7 @@
   .link-name{color:var(--accent-dark); text-decoration:underline; text-underline-offset:2px; cursor:pointer; font-weight:600;}
   .link-name:hover{color:var(--gold);}
   #topbar{
-    position:sticky; top:0; z-index:20; background:linear-gradient(135deg, var(--accent-dark), var(--accent));
+    position:sticky; top:0; z-index:20; background:linear-gradient(135deg, #16281A, #234D2A);
     border-bottom:1px solid var(--border);
     display:flex; align-items:center; gap:.7rem; padding:.75rem 1.1rem; flex-wrap:wrap;
     box-shadow:var(--shadow);
@@ -192,13 +192,9 @@
   .footer-note{text-align:center; color:var(--ink-soft); font-size:.75rem; margin-top:2rem;}
   /* Genogram-style tree connectors */
   .family-block{display:flex; flex-direction:column; align-items:center; margin:0 1.1rem;}
-  .couple-unit{display:flex; align-items:stretch; position:relative;}
-  .couple-unit .person-card{border-radius:0; margin:0;}
-  .couple-unit .person-card:first-child{border-radius:var(--radius) 0 0 var(--radius);}
-  .couple-unit .person-card:last-child{border-radius:0 var(--radius) var(--radius) 0; border-left:none;}
-  .couple-unit.single .person-card{border-radius:var(--radius);}
-  .couple-link{width:14px; flex-shrink:0; position:relative; background:var(--card); border-top:1px solid var(--border); border-bottom:1px solid var(--border);}
-  .couple-link::before{content:''; position:absolute; top:50%; left:0; right:0; height:var(--line-width); background:var(--line-color); transform:translateY(-50%);}
+  .couple-unit{display:flex; align-items:center; position:relative;}
+  .couple-unit .person-card{border-radius:var(--radius); margin:0;}
+  .couple-link{width:44px; height:var(--line-width); background:var(--line-color); flex-shrink:0;}
   .drop-line{width:var(--line-width); height:22px; background:transparent; margin:0 auto;}
   .children-bus{position:relative; padding-top:22px;}
   .children-bus.multi::before{content:none;}
@@ -258,20 +254,22 @@ let route = { screen: "login" };
 let toastTimer = null;
 
 function treeSvg(cls){
-  return `<svg class="${cls}" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-    <path d="M50 95 L50 55" stroke="#8C6B3F" stroke-width="4" stroke-linecap="round"/>
-    <path d="M50 70 L34 58" stroke="#8C6B3F" stroke-width="3" stroke-linecap="round"/>
-    <path d="M50 65 L66 52" stroke="#8C6B3F" stroke-width="3" stroke-linecap="round"/>
-    <circle cx="50" cy="35" r="26" fill="var(--accent-soft)"/>
-    <circle cx="30" cy="48" r="17" fill="var(--accent-soft)"/>
-    <circle cx="70" cy="46" r="19" fill="var(--accent-soft)"/>
-    <circle cx="50" cy="35" r="26" fill="var(--accent)" fill-opacity="0.55"/>
-    <circle cx="30" cy="48" r="17" fill="var(--accent)" fill-opacity="0.4"/>
-    <circle cx="70" cy="46" r="19" fill="var(--accent)" fill-opacity="0.45"/>
-    <circle cx="40" cy="28" r="3" fill="var(--gold)"/>
-    <circle cx="60" cy="40" r="3" fill="var(--gold)"/>
-    <circle cx="65" cy="22" r="3" fill="var(--gold)"/>
-    <circle cx="25" cy="42" r="3" fill="var(--gold)"/>
+  return `<svg class="${cls}" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="60" cy="112" rx="32" ry="5" fill="#1B2A16" opacity="0.5"/>
+    <path d="M60 110 C56 95 59 78 54 62 C50 50 62 44 62 44 C62 44 73 50 69 62 C63 78 65 95 61 110 Z" fill="#6B4A2B"/>
+    <path d="M60 108 C59 96 60 82 57 68" stroke="#4E3620" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M53 63 C46 58 40 62 37 70" stroke="#4E3620" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    <path d="M69 61 C76 56 81 61 83 69" stroke="#4E3620" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    <circle cx="61" cy="38" r="30" fill="#356B34"/>
+    <circle cx="35" cy="47" r="19" fill="#2E6030"/>
+    <circle cx="87" cy="44" r="21" fill="#295A2C"/>
+    <circle cx="55" cy="21" r="17" fill="#5D9C4C"/>
+    <circle cx="77" cy="26" r="15" fill="#4C8C42"/>
+    <circle cx="39" cy="27" r="13" fill="#69AC55"/>
+    <circle cx="66" cy="30" r="8" fill="#7FBE68" opacity="0.7"/>
+    <path d="M28 113 q4 -11 8 0" stroke="#3E7A3F" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M88 114 q4 -11 8 0" stroke="#3E7A3F" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M18 116 q3 -8 6 0" stroke="#356B34" stroke-width="2" fill="none" stroke-linecap="round"/>
   </svg>`;
 }
 function normalize(s){
